@@ -21,7 +21,7 @@
 ; * CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
 ; *
 ; ******************************************************************************/
-;/*
+;/*F
 ;//-------- <<< Use Configuration Wizard in Context Menu >>> ------------------
 ;*/
 
@@ -205,19 +205,19 @@ __Vectors_Size  EQU     __Vectors_End - __Vectors
 Reset_Handler   PROC
                 EXPORT  Reset_Handler             [WEAK]
                 IMPORT  SystemInit
-        	IMPORT  __main
+				IMPORT  __main
 	
 		; Store __initial_sp into MSP (Step 1 toward Midpoint Report)
 
-		ISB     ; Let's leave as is from the original.
+				ISB     ; Let's leave as is from the original.
                 LDR     R0, =SystemInit
-        	BLX     R0
+				BLX     R0
 
 		; Initialize the system call table (Step 2)
 		; Initialize the heap space (Step 2)
 		; Initialize the SysTick timer (Step 2)
 	
-		; Store __initial_user_sp into PSP (Step 1 toward Midpoint Report)
+		; TODO: Store __initial_user_sp into PSP (Step 1 toward Midpoint Report)
 		; Change CPU mode into unprivileged thread mode using PSP
 
                 LDR     R0, =__main
