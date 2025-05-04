@@ -26,29 +26,23 @@ Project File Date:  05/03/2025
 
 <h2>Output:</h2>
 *** Using Compiler 'V6.23', folder: 'C:\Users\caleb\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin'
-Build target 'Target_1'
-Note: source file '.\Thumb 2 Programs\heap_template.s' - object file renamed from '.\Objects\heap_template.o' to '.\Objects\heap_template_1.o'.
-Note: source file '.\Thumb 2 Programs\heap_template.s' - object file renamed from '.\Objects\heap_template.o' to '.\Objects\heap_template_1.o'.
-armclang: warning: C Programs/compile.sh: 'linker' input unused [-Wunused-command-line-argument]
-armclang: warning: argument unused during compilation: '-mfloat-abi=hard' [-Wunused-command-line-argument]
-armclang: warning: argument unused during compilation: '-Wa,armasm,--diag_suppress=A1950W' [-Wunused-command-line-argument]
-armclang: warning: argument unused during compilation: '-gdwarf-4' [-Wunused-command-line-argument]
-armclang: warning: argument unused during compilation: '-D __EVAL' [-Wunused-command-line-argument]
-armclang: warning: argument unused during compilation: '-I C:/Users/caleb/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C129' [-Wunused-command-line-argument]
-armclang: warning: argument unused during compilation: '-D __UVISION_VERSION=542' [-Wunused-command-line-argument]
-armclang: warning: argument unused during compilation: '-D TM4C129XNCZAD' [-Wunused-command-line-argument]
-assembling compile.sh...
-C Programs/driver.c(9): error: 'unistd.h' file not found
-    9 | #include <unistd.h>  // alarm
-      |          ^~~~~~~~~~
-1 error generated.
-compiling driver.c...
-C Programs/driver_cpg.c(15): error: 'unistd.h' file not found
-   15 | #include <unistd.h>  // alarm
-      |          ^~~~~~~~~~
-1 error generated.
-compiling driver_cpg.c...
-".\Objects\Final Project.axf" - 2 Error(s), 8 Warning(s).
+Rebuild target 'Target_1'
+C Programs/driver_keil.c(13): warning: unused parameter 'signum' [-Wunused-parameter]
+   13 | void sig_handler1( int signum ) {
+      |                        ^
+C Programs/driver_keil.c(17): warning: unused parameter 'signum' [-Wunused-parameter]
+   17 | void sig_handler2( int signum ) {
+      |                        ^
+2 warnings generated.
+compiling driver_keil.c...
+assembling timer.s...
+assembling heap.s...
+assembling startup_TM4C129.s...
+assembling stdlib.s...
+assembling svc.s...
+linking...
+Program Size: Code=1192 RO-data=568 RW-data=0 ZI-data=24680  
+".\Objects\Final Project.axf" - 0 Error(s), 2 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -61,7 +55,6 @@ Package Vendor: Keil
   C:/Users/caleb/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C129
 
 <h2>Collection of Component Files used:</h2>
-Target not created.
 Build Time Elapsed:  00:00:00
 </pre>
 </body>

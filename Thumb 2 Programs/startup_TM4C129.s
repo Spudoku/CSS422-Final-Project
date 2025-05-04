@@ -205,7 +205,7 @@ __Vectors_Size  EQU     __Vectors_End - __Vectors
 Reset_Handler   PROC
                 EXPORT  Reset_Handler             [WEAK]
                 IMPORT  SystemInit
-				IMPORT  __main
+				IMPORT  main
 	
 		; Store __initial_sp into MSP (Step 1 toward Midpoint Report)
 
@@ -220,7 +220,7 @@ Reset_Handler   PROC
 		; TODO: Store __initial_user_sp into PSP (Step 1 toward Midpoint Report)
 		; Change CPU mode into unprivileged thread mode using PSP
 
-                LDR     R0, =__main
+                LDR     R0, =main
                 BX      R0
                 ENDP
 

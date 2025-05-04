@@ -385,54 +385,34 @@
           <GroupName>Source Group 1</GroupName>
           <Files>
             <File>
-              <FileName>compile.sh</FileName>
-              <FileType>2</FileType>
-              <FilePath>.\C Programs\compile.sh</FilePath>
-            </File>
-            <File>
-              <FileName>driver.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\C Programs\driver.c</FilePath>
-            </File>
-            <File>
-              <FileName>driver_cpg.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\C Programs\driver_cpg.c</FilePath>
-            </File>
-            <File>
               <FileName>driver_keil.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\C Programs\driver_keil.c</FilePath>
             </File>
             <File>
-              <FileName>heap_template.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\C Programs\heap_template.c</FilePath>
+              <FileName>heap.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\Thumb 2 Programs\heap.s</FilePath>
             </File>
             <File>
-              <FileName>heap_template.s</FileName>
+              <FileName>startup_TM4C129.s</FileName>
               <FileType>2</FileType>
-              <FilePath>.\Thumb 2 Programs\heap_template.s</FilePath>
+              <FilePath>.\Thumb 2 Programs\startup_TM4C129.s</FilePath>
             </File>
             <File>
-              <FileName>startup_TM4C129_template.s</FileName>
+              <FileName>stdlib.s</FileName>
               <FileType>2</FileType>
-              <FilePath>.\Thumb 2 Programs\startup_TM4C129_template.s</FilePath>
+              <FilePath>.\Thumb 2 Programs\stdlib.s</FilePath>
             </File>
             <File>
-              <FileName>stdlib_template.s</FileName>
+              <FileName>svc.s</FileName>
               <FileType>2</FileType>
-              <FilePath>.\Thumb 2 Programs\stdlib_template.s</FilePath>
+              <FilePath>.\Thumb 2 Programs\svc.s</FilePath>
             </File>
             <File>
-              <FileName>svc_template.s</FileName>
+              <FileName>timer.s</FileName>
               <FileType>2</FileType>
-              <FilePath>.\Thumb 2 Programs\svc_template.s</FilePath>
-            </File>
-            <File>
-              <FileName>timer_template.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>.\Thumb 2 Programs\timer_template.s</FilePath>
+              <FilePath>.\Thumb 2 Programs\timer.s</FilePath>
             </File>
           </Files>
         </Group>
