@@ -47,9 +47,9 @@ Thread_Stack_Size	EQU	0x00000800
 
 ; TODO: __initial_user_sp and __initial_sp
 Thread_Stack_Mem		SPACE	Thread_Stack_Size
-__initial_user_sp
+__initial_user_sp		EQU		Thread_Stack_Mem + Thread_Stack_Size
 Handler_Stack_Mem       SPACE   Handler_Stack_Size
-__initial_sp
+__initial_sp			EQU		Handler_Stack_Mem + Handler_Stack_Size
 
 
                 PRESERVE8
@@ -211,6 +211,9 @@ Reset_Handler   PROC
 		; Store __initial_sp into MSP (Step 1 toward Midpoint Report)
 				LDR		R0, =__initial_sp
 				MOV		SP, R0
+				LDR		R0, =__initial_user_sp
+				MSR		PSP, R0
+				
 				ISB     ; Let's leave as is from the original.
                 LDR     R0, =SystemInit
 				BLX     R0
