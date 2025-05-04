@@ -22,11 +22,13 @@ Dialog DLL:      TCM.DLL V1.56.6.0
  
 <h2>Project:</h2>
 C:\Users\caleb\Documents\UWB\Course Docs\Spring 2025\CSS 422\Projects\Final Project\Final Project.uvprojx
-Project File Date:  05/03/2025
+Project File Date:  05/04/2025
 
 <h2>Output:</h2>
 *** Using Compiler 'V6.23', folder: 'C:\Users\caleb\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin'
 Rebuild target 'Target_1'
+Note: source file 'RTE/Device/TM4C129XNCZAD/startup_TM4C129.s' - object file renamed from '.\Objects\startup_TM4C129.o' to '.\Objects\startup_tm4c129_1.o'.
+Note: source file 'RTE/Device/TM4C129XNCZAD/startup_TM4C129.s' - object file renamed from '.\Objects\startup_TM4C129.o' to '.\Objects\startup_tm4c129_1.o'.
 assembling timer.s...
 C Programs/driver_keil.c(13): warning: unused parameter 'signum' [-Wunused-parameter]
    13 | void sig_handler1( int signum ) {
@@ -36,26 +38,43 @@ C Programs/driver_keil.c(17): warning: unused parameter 'signum' [-Wunused-param
       |                        ^
 2 warnings generated.
 compiling driver_keil.c...
-assembling stdlib.s...
+compiling system_TM4C129.c...
 assembling startup_TM4C129.s...
-assembling svc.s...
+assembling stdlib.s...
 assembling heap.s...
+assembling svc.s...
 linking...
-Program Size: Code=1212 RO-data=568 RW-data=0 ZI-data=24680  
+Program Size: Code=1256 RO-data=584 RW-data=4 ZI-data=24680  
 ".\Objects\Final Project.axf" - 0 Error(s), 2 Warning(s).
 
 <h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                https://www.keil.com/pack/ARM.CMSIS.6.1.0.pack
+                ARM::CMSIS@6.1.0
+                CMSIS (Common Microcontroller Software Interface Standard)
+   * Component: CORE Version: 6.1.0
 
 Package Vendor: Keil
                 http://www.keil.com/pack/Keil.TM4C_DFP.1.1.0.pack
                 Keil::TM4C_DFP@1.1.0
                 Texas Instruments Tiva C Series Device Support and Examples
+   * Component: Startup Version: 1.0.0
 
 <h2>Collection of Component include folders:</h2>
+  ./RTE/_Target_1
+  C:/Users/caleb/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include
   C:/Users/caleb/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C129
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:01
+
+   * Component: ARM::CMSIS:CORE@6.1.0
+
+   * Component: Keil::Device:Startup@1.0.0
+      Include file:  Device/Include/TM4C129/TM4C129.h
+      Source file:   Device/Source/system_TM4C129.c
+      Source file:   Device/Source/ARM/startup_TM4C129.s
+Build Time Elapsed:  00:00:00
 </pre>
 </body>
 </html>

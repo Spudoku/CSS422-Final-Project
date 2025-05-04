@@ -10,8 +10,12 @@
 ;   none
 		EXPORT	_bzero
 _bzero
+		CMP		R1, #0
+		BEQ		_bezero_end
 		; implement your complete logic, including stack operations
-		MOV		pc, lr	
+		; R0 should be *s, R1 should be n
+		; for loop?
+_bezero_end		MOV		pc, lr	
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; char* _strncpy( char* dest, char* src, int size )

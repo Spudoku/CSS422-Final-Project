@@ -23,7 +23,8 @@ int main( ) {
 	char stringB[40];
 	//_bzero( stringB, 40 );
 	_strncpy( stringB, stringA, 40 );
-	_bzero( stringA, 40 );
+	_bzero(stringA, 0);
+//	_bzero( stringA, 40 );
 	void* mem1 = _malloc( 1024 );
 	void* mem2 = _malloc( 1024 );
 	void* mem3 = _malloc( 8192 );
@@ -57,8 +58,4 @@ int main( ) {
 //		_free( mem9 );
 //	}
 	return 0;
-}
-
-void SystemInit(void) {
-    // Empty stub for simulation
 }
