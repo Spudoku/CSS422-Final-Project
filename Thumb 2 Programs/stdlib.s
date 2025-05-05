@@ -23,11 +23,8 @@ _bzero
 		
 for_loop			CMP		R0, R1			; R2 < R1
 					BEQ		_bezero_end		
-					
-					;LDRB	R3, [R0, #1]!
-					LDRB	R3, [R0], #1	; post-index
 					MOV		R3, #0
-					STRB	R3, [R0]
+					STRB	R3, [R0], #1
 					B		for_loop
 _bezero_end			MOV		pc, lr	
 
