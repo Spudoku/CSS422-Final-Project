@@ -8,14 +8,28 @@
 ;	n		- a number of bytes to zero-initialize
 ; Return value
 ;   none
+; in driver_keil.c: R0 = 0x2000583C - 0x20005864
+; in 
 		EXPORT	_bzero
 _bzero
-		CMP		R1, #0
-		BEQ		_bezero_end
-		; implement your complete logic, including stack operations
-		; R0 should be *s, R1 should be n
-		; for loop?
-_bezero_end		MOV		pc, lr	
+					; implement your complete logic, including stack operations
+					; R0 should be *s, R1 should be n
+					; for loop?
+					
+					CMP		R1, #0
+					BEQ		_bezero_end
+					MOV		R2, #0			; for int R2 = 0
+					ADD		R1, R0, R1		; R1 = R1 + R0
+		
+for_loop			CMP		R0, R1			; R2 < R1
+					BEQ		_bezero_end		
+					
+					;LDRB	R3, [R0, #1]!
+					LDRB	R3, [R0], #1	; post-index
+					MOV		R3, #0
+					STRB	R3, [R0]
+					B		for_loop
+_bezero_end			MOV		pc, lr	
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; char* _strncpy( char* dest, char* src, int size )
