@@ -37,9 +37,26 @@ _bezero_end			MOV		pc, lr
 ; Return value
 ;   dest
 		EXPORT	_strncpy
+			; R0: dest
+			; R1: src
+			; R2: size
 _strncpy
 		; implement your complete logic, including stack operations
-		MOV		pc, lr
+					LDRB	R3, [R1]			; load 
+					MOV		R4,	#0				; counter
+					MOV		R5, R0				; store original dest
+while_loop			CMP		R3, #0				; if null byte found, return
+					BEQ		done
+					CMP		R4, R2				; if R4 == size, return
+					BEQ		done
+					
+					LDRB	R3, [R1], #1
+					STRB	R3, [R0], #1
+					ADD		R4, R4, #1
+					B while_loop
+done
+					MOV		R0, R5				; R0 = original dest (return value)
+					MOV		pc, lr				; return to main
 		
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; void* _malloc( int size )

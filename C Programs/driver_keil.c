@@ -21,9 +21,8 @@ void sig_handler2( int signum ) {
 int main( ) {
 	char stringA[40] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabc\0";
 	char stringB[40];
-	//_bzero( stringB, 40 );
-	//_strncpy( stringB, stringA, 40 );
-//	_bzero(stringA, 0);
+	_bzero( stringB, 40 );
+	_strncpy( stringB, stringA, 40 );
 	_bzero( stringA, 40 );
 	void* mem1 = _malloc( 1024 );
 	void* mem2 = _malloc( 1024 );
@@ -46,16 +45,16 @@ int main( ) {
 	*alarmed = 1;
 	_signal( SIG_ALRM, sig_handler1 );
 	_alarm( 2 );
-//	while ( *alarmed != 2 ) {
-//		void* mem9 = _malloc( 4 );	
-//		_free( mem9 );		
-//	}
+	while ( *alarmed != 2 ) {
+		void* mem9 = _malloc( 4 );	
+		_free( mem9 );		
+	}
 	
 	_signal( SIG_ALRM, sig_handler2 );
 	_alarm( 3 );
-//	while ( *alarmed != 3 ) {
-//		void* mem9 = _malloc( 4 );	
-//		_free( mem9 );
-//	}
+	while ( *alarmed != 3 ) {
+		void* mem9 = _malloc( 4 );	
+		_free( mem9 );
+	}
 	return 0;
 }

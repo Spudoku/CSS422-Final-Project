@@ -30,25 +30,22 @@ Rebuild target 'Target_1'
 Note: source file 'RTE/Device/TM4C129XNCZAD/startup_TM4C129.s' - object file renamed from '.\Objects\startup_TM4C129.o' to '.\Objects\startup_tm4c129_1.o'.
 Note: source file 'RTE/Device/TM4C129XNCZAD/startup_TM4C129.s' - object file renamed from '.\Objects\startup_TM4C129.o' to '.\Objects\startup_tm4c129_1.o'.
 compiling system_TM4C129.c...
+assembling svc.s...
+assembling heap.s...
 C Programs/driver_keil.c(13): warning: unused parameter 'signum' [-Wunused-parameter]
    13 | void sig_handler1( int signum ) {
       |                        ^
 C Programs/driver_keil.c(17): warning: unused parameter 'signum' [-Wunused-parameter]
    17 | void sig_handler2( int signum ) {
       |                        ^
-C Programs/driver_keil.c(23): warning: unused variable 'stringB' [-Wunused-variable]
-   23 |         char stringB[40];
-      |              ^~~~~~~
-3 warnings generated.
+2 warnings generated.
 compiling driver_keil.c...
-assembling svc.s...
+assembling stdlib.s...
 assembling timer.s...
 assembling startup_TM4C129.s...
-assembling stdlib.s...
-assembling heap.s...
 linking...
-Program Size: Code=1268 RO-data=584 RW-data=4 ZI-data=24680  
-".\Objects\Final Project.axf" - 0 Error(s), 3 Warning(s).
+Program Size: Code=1388 RO-data=584 RW-data=4 ZI-data=24680  
+".\Objects\Final Project.axf" - 0 Error(s), 2 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -74,10 +71,10 @@ Package Vendor: Keil
    * Component: ARM::CMSIS:CORE@6.1.0
 
    * Component: Keil::Device:Startup@1.0.0
-      Include file:  Device/Include/TM4C129/TM4C129.h
       Source file:   Device/Source/system_TM4C129.c
       Source file:   Device/Source/ARM/startup_TM4C129.s
-Build Time Elapsed:  00:00:01
+      Include file:  Device/Include/TM4C129/TM4C129.h
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>
