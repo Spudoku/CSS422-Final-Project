@@ -25,6 +25,7 @@ int mcb_total  = 512;          // # MCB entries: 2^9 = 512 entries
  * Convert a Cortex SRAM address to the corresponding array index.
  * @param  sram_addr address of Cortex-M's SRAM space starting at 0x20000000.
  * @return array index.
+	aka memory to array?
  */
 int m2a( int sram_addr ) {
   int index = sram_addr - 0x20000000;
@@ -36,6 +37,7 @@ int m2a( int sram_addr ) {
  * Reverse an array index back to the corresponding Cortex SRAM address.
  * @param  array index.
  * @return the corresponding Cortex-M's SRAM address in an integer.
+	aka array to memory?
  */ 
 int a2m( int array_index ) {
   return array_index + 0x20000000;
@@ -54,7 +56,8 @@ void printArray( ) {
 }
 
 /*
- * _ralloc is _kalloc's helper function that is recursively called to
+* TODO: _ralloc
+_ralloc is _kalloc's helper function that is recursively called to
  * allocate a requested space, using the buddy memory allocaiton algorithm.
  * Implement it by yourself in step 1.
  *
@@ -69,12 +72,17 @@ void printArray( ) {
  */
 void *_ralloc( int size, int left, int right ) {
   // printf( "_ralloc: size=%d, left=%x, right=%x\n", size, left, right );
-
+	// get current block
+	
+	// find smallest available block
+	
+	// 
   return NULL;
 }
 
 /*
- * _rfree is _kfree's helper function that is recursively called to
+* TODO: _rfree
+_rfree is _kfree's helper function that is recursively called to
  * deallocate a space, using the buddy memory allocaiton algorithm.
  * Implement it by yourself in step 1.
  *
@@ -92,6 +100,7 @@ int _rfree( int mcb_addr ) {
  * Initializes MCB entries. In step 2's assembly coding, this routine must
  * be called from Reset_Handler in startup_TM4C129.s before you invoke
  * driver.c's main( ).
+
  */
 void _kinit( ) {
   // Zeroing the heap space: no need to implement in step 2's assembly code.
@@ -112,6 +121,7 @@ void _kinit( ) {
  *
  * @param  the size of a requested memory space
  * @return a pointer to the allocated space
+
  */
 void *_kalloc( int size ) {
   // printf( "_kalloc called\n" );
@@ -123,6 +133,7 @@ void *_kalloc( int size ) {
  *
  * @param  a pointer to the memory space to be deallocated.
  * @return the address of this deallocated space.
+TODO: _kfree
  */
 void *_kfree( void *ptr ) {
   int addr = (int )ptr;
@@ -141,6 +152,8 @@ void *_kfree( void *ptr ) {
     return ptr;
 }
 
+
+// DO NOT COMPLETE
 /*
  * _malloc should be implemented in stdlib.s in step 2.
  * _kalloc must be invoked through SVC in step 2.
