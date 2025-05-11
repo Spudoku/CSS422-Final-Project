@@ -76,17 +76,33 @@ _ralloc is _kalloc's helper function that is recursively called to
  */
 void *_ralloc(int size, int left, int right)
 {
-  printf("_ralloc: size=%d, left=%X, right=%X\n", size, left, right);
-  //  base case: 2^u-1 < size < 2^U, allocate the block
+  printf("[_ralloc]: size=%d, left=%X, right=%X\n", size, left, right);
 
   // look for closest fit (smallest available block that is larger than size)
   // iterate over MCB
-  int mid = left + (right - left);
-  printf("[_ralloc] mid = %X\n", mid);
-  int i = findBestBlock(size);
-  int start_index = mcb_top;
-  int block_size;
-  int buddy_index;
+  int mid = (right + left) / 2;
+
+  int addr = findBestBlock(size);
+  if (!addr)
+  {
+    return NULL;
+  }
+  int block_size = getBlockSize(addr);
+  //  base case: 2^u-1 < size <= 2^U, allocate the block
+  int allocLevel = get_level(size);
+  int blockLevel = get_level(block_size);
+
+  printf("\t[_ralloc] mid = %X; address of chosen block: %X; size of chosen block: %X\n", mid, addr, block_size);
+  printf("\tallocLevel: %d; blockLevel: %d\n", allocLevel, blockLevel);
+
+  if (blockLevel > allocLevel)
+  {
+    // split and recurse
+  }
+  else
+  {
+    // allocate and return
+  }
   // if no suitable memory can be found, return NULL
   return NULL;
 }
@@ -152,17 +168,34 @@ int findBestBlock(int size)
     }
 
     // mask to get first 16 bits
-    int blockSize = entry & 0x7FFF;
+    int blockSize = getBlockSize(entry);
     // mask to get last 16 bits
-    int allocated = entry & 0x8000;
+    int allocated = getAllocated(entry);
     printf("[findBestBlock] mcb at %X: size = %d, %s\n", addr, blockSize, allocated ? "allocated" : "free");
 
     addr += (blockSize / min_size) * mcb_ent_sz;
-    if (blockSize >= size)
+    if (blockSize >= size && !allocated)
     {
+      printf("\tthis block was chosen!\n");
       return addr;
     }
   }
+  // no suitable block found
+  return 0;
+}
+
+int getBlockSize(int addr)
+{
+  return addr & 0x7FFF;
+}
+
+void setBlockSize(int addr, int newSize)
+{
+}
+
+int getAllocated(int addr)
+{
+  return addr & 0x8000;
 }
 
 /*
