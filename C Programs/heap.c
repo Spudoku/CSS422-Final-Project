@@ -82,7 +82,7 @@ void *_ralloc(int size, int left, int right)
   // iterate over MCB
   int mid = (right + left) / 2;
 
-  int addr = findBestBlock(size);
+  int addr = findBestBlock(size, left, right);
   if (!addr)
   {
     return NULL;
@@ -92,16 +92,20 @@ void *_ralloc(int size, int left, int right)
   int allocLevel = get_level(size);
   int blockLevel = get_level(block_size);
 
-  printf("\t[_ralloc] mid = %X; address of chosen block: %X; size of chosen block: %X\n", mid, addr, block_size);
+  printf("\t[_ralloc] mid = %X; address of chosen block: %X; size of chosen block: %d\n", mid, addr, block_size);
   printf("\tallocLevel: %d; blockLevel: %d\n", allocLevel, blockLevel);
 
   if (blockLevel > allocLevel)
   {
+    int new_size = block_size / 2;
     // split and recurse
+    *(short *)&array[m2a(addr)] = new_size;                                    // left buddy
+    *(short *)&array[m2a(addr + new_size / min_size * mcb_ent_sz)] = new_size; // right buddy
+    printf("[_ralloc] RECURSIVE CALL\n");
+    // return _ralloc(size, left, right);
   }
   else
   {
-    // allocate and return
   }
   // if no suitable memory can be found, return NULL
   return NULL;
@@ -153,12 +157,15 @@ int get_level(int size)
   return level;
 }
 
+// return the address of the best non-allocated
+// block
 // return -1 if no non-allocated block
 // can be found
-int findBestBlock(int size)
+int findBestBlock(int size, int left, int right)
 {
   // start from mcb_top
-  for (int addr = mcb_top; addr <= mcb_bot;)
+  printf("[findBestBlock]\n");
+  for (int addr = left; addr <= right;)
   {
     short entry = *(short *)&array[m2a(addr)];
     if (entry == 0)
@@ -168,17 +175,16 @@ int findBestBlock(int size)
     }
 
     // mask to get first 16 bits
-    int blockSize = getBlockSize(entry);
+    int blockSize = getBlockSize(addr);
     // mask to get last 16 bits
-    int allocated = getAllocated(entry);
+    int allocated = getAllocated(addr);
     printf("[findBestBlock] mcb at %X: size = %d, %s\n", addr, blockSize, allocated ? "allocated" : "free");
-
-    addr += (blockSize / min_size) * mcb_ent_sz;
     if (blockSize >= size && !allocated)
     {
       printf("\tthis block was chosen!\n");
       return addr;
     }
+    addr += (blockSize / min_size) * mcb_ent_sz;
   }
   // no suitable block found
   return 0;
@@ -186,7 +192,8 @@ int findBestBlock(int size)
 
 int getBlockSize(int addr)
 {
-  return addr & 0x7FFF;
+  short data = *(short *)&array[m2a(addr)];
+  return data & 0x7FFF;
 }
 
 void setBlockSize(int addr, int newSize)
@@ -195,7 +202,8 @@ void setBlockSize(int addr, int newSize)
 
 int getAllocated(int addr)
 {
-  return addr & 0x8000;
+  short data = *(short *)&array[m2a(addr)];
+  return data & 0x8000;
 }
 
 /*
