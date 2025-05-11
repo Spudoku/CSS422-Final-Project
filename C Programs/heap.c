@@ -134,10 +134,16 @@ _rfree is _kfree's helper function that is recursively called to
  */
 int _rfree(int mcb_addr)
 {
-  // printf( "_rfree: mcb[%x] = %x\n",
-  //	  mcb_addr, *(short *)&array[ m2a( mcb_addr ) ] )
-  // find the block at the address
+  short entry = *(short *)&array[m2a(mcb_addr)];
 
+  // printf("_rfree: mcb[%x] = %x\n",
+  //        mcb_addr, *(short *)&array[m2a(mcb_addr)]);
+  // find the block at the address
+  int blockSize = getBlockSize(mcb_addr);
+  int allocated = getAllocated(mcb_addr);
+  // printf("[_rfree] mcb at %X: size = %d, %s\n", mcb_addr, blockSize, allocated ? "allocated" : "free");
+  printf("[_rfree] mcb at %X: size = %d, %d\n", mcb_addr, blockSize, allocated);
+  int buddyAddr = get_buddy(mcb_addr);
   // recursively merge as much as possible
   return mcb_addr;
 }
@@ -145,10 +151,42 @@ int _rfree(int mcb_addr)
 /*
   get the address of the MCB buddy
 */
-int get_buddy(int block_index, int block_size)
+int get_buddy(int addr)
 {
-  int entries_per_block = block_size / min_size; // maximum number of sub-blocks
-  return block_index ^ entries_per_block;
+  int isUp = 0;
+  // check size of neighboring blocks
+  int buddyAddr; // address of buddy
+
+  printf("[get_buddy] address: %X; size: %d; \n", addr, getBlockSize(addr));
+  buddyAddr = addr - getBlockSize(addr);
+  if (buddyAddr >= mcb_top)
+  {
+    printf("\tTesting upper address: %X; size: %d; \n", buddyAddr, getBlockSize(buddyAddr));
+  }
+  else
+  {
+    printf("\tupper address: %X is out of bounds! \n", buddyAddr, getBlockSize(buddyAddr));
+  }
+
+  buddyAddr = addr + getBlockSize(addr);
+  if (buddyAddr <= mcb_bot)
+  {
+    printf("\tTesting lower address: %X; size: %d; \n", buddyAddr, getBlockSize(buddyAddr));
+  }
+  else
+  {
+    printf("\tlower address: %X is out of bounds! \n", buddyAddr, getBlockSize(buddyAddr));
+  }
+
+  if (isUp)
+  {
+    // go upwards?
+  }
+  else
+  {
+    // go downwards?
+  }
+  return 0;
 }
 
 // get the first level that is larger than size
@@ -187,6 +225,8 @@ int findBestBlock(int size, int left, int right)
       addr += 2;
       continue;
     }
+    // printf("[findBestBlock]: mcb[%x] = %x\n",
+    //        addr, *(short *)&array[m2a(addr)]);
 
     // mask to get first 16 bits
     int blockSize = getBlockSize(addr);
