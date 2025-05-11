@@ -22,6 +22,8 @@ int mcb_top = 0x20006800;    // the top of MCB
 int mcb_bot = 0x20006BFE;    // the address of the last MCB entry
 int mcb_ent_sz = 0x00000002; // 2B per MCB entry
 const int mcb_total = 512;   // # MCB entries: 2^9 = 512 entries
+
+//
 // Note to self: MSB of each MCB will hold status (allocated or not)
 
 /*
@@ -134,7 +136,9 @@ int _rfree(int mcb_addr)
 {
   // printf( "_rfree: mcb[%x] = %x\n",
   //	  mcb_addr, *(short *)&array[ m2a( mcb_addr ) ] )
+  // find the block at the address
 
+  // recursively merge as much as possible
   return mcb_addr;
 }
 
