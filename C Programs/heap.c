@@ -26,7 +26,7 @@ const int mcb_total = 512;   // # MCB entries: 2^9 = 512 entries
  * Convert a Cortex SRAM address to the corresponding array index.
  * @param  sram_addr address of Cortex-M's SRAM space starting at 0x20000000.
  * @return array index.
-  aka memory to array?
+  aka MCB to array?
  */
 int m2a(int sram_addr)
 {
@@ -39,7 +39,7 @@ int m2a(int sram_addr)
  * Reverse an array index back to the corresponding Cortex SRAM address.
  * @param  array index.
  * @return the corresponding Cortex-M's SRAM address in an integer.
-  aka array to memory?
+  aka array to MCB?
  */
 int a2m(int array_index)
 {
@@ -76,14 +76,17 @@ _ralloc is _kalloc's helper function that is recursively called to
  */
 void *_ralloc(int size, int left, int right)
 {
-  // printf("_ralloc: size=%d, left=%x, right=%x\n", size, left, right);
+  printf("_ralloc: size=%d, left=%X, right=%X\n", size, left, right);
   //  base case: 2^u-1 < size < 2^U, allocate the block
 
-  // compute the mcb address corresponding to the addr to be deleted
-  // int mcb_addr = mcb_top + (addr - heap_top) / 16;
-
   // look for closest fit (smallest available block that is larger than size)
-
+  // iterate over MCB
+  int mid = left + (right - left);
+  printf("[_ralloc] mid = %X\n", mid);
+  int i = findBestBlock(size);
+  int start_index = mcb_top;
+  int block_size;
+  int buddy_index;
   // if no suitable memory can be found, return NULL
   return NULL;
 }
@@ -106,6 +109,63 @@ int _rfree(int mcb_addr)
 }
 
 /*
+  get the address of the MCB buddy
+*/
+int get_buddy(int block_index, int block_size)
+{
+  int entries_per_block = block_size / min_size; // maximum number of sub-blocks
+  return block_index ^ entries_per_block;
+}
+
+// get the first level that is larger than size
+// and is a power of 2
+int get_level(int size)
+{
+  if (size <= min_size)
+  {
+    return 5;
+  }
+
+  int sizeCounter = min_size; // 32 bytes
+  int level = 5;
+  while (sizeCounter < size)
+  {
+    sizeCounter *= 2;
+    level++;
+  }
+
+  return level;
+}
+
+// return -1 if no non-allocated block
+// can be found
+int findBestBlock(int size)
+{
+  // start from mcb_top
+  for (int addr = mcb_top; addr <= mcb_bot;)
+  {
+    short entry = *(short *)&array[m2a(addr)];
+    if (entry == 0)
+    {
+      addr += 2;
+      continue;
+    }
+
+    // mask to get first 16 bits
+    int blockSize = entry & 0x7FFF;
+    // mask to get last 16 bits
+    int allocated = entry & 0x8000;
+    printf("[findBestBlock] mcb at %X: size = %d, %s\n", addr, blockSize, allocated ? "allocated" : "free");
+
+    addr += (blockSize / min_size) * mcb_ent_sz;
+    if (blockSize >= size)
+    {
+      return addr;
+    }
+  }
+}
+
+/*
  * Initializes MCB entries. In step 2's assembly coding, this routine must
  * be called from Reset_Handler in startup_TM4C129.s before you invoke
  * driver.c's main( ).
@@ -121,7 +181,8 @@ void _kinit()
   // this means
   *(short *)&array[m2a(mcb_top)] = max_size;
   int maxLevel = get_level(max_size);
-  printf("[_kinit] largest level: %d/n", maxLevel);
+  printf("[_kinit] largest level: %d\n", maxLevel);
+  printf("[_kinit] contents of array[m2a(mcb_top)]: 0x%X\n", *(short *)&array[m2a(mcb_top)]);
 
   for (int i = 0x20006804; i < 0x20006C00; i += 2)
   {
@@ -186,7 +247,7 @@ void *_malloc(int size)
     init = 1;
     _kinit(); // In step 2, you will call _kinit from Reset_Handler
   }
-  printArray();
+  // printArray();
   return _kalloc(size);
 }
 
@@ -200,32 +261,4 @@ void *_malloc(int size)
 void *_free(void *ptr)
 {
   return _kfree(ptr);
-}
-
-/*
-  get the address of the MCB buddy
-*/
-int get_buddy(int arrIndex, int level)
-{
-  // return arrIndex ^ (1 << level);
-  return 0;
-}
-
-// get the first level that is larger than size
-// and is a power of 2
-int get_level(int size)
-{
-  if (size <= min_size)
-  {
-    return 5;
-  }
-  int sizeCounter = min_size; // 32 bytes
-  int level = 5;
-  while (sizeCounter < size)
-  {
-    sizeCounter *= 2;
-    level++;
-  }
-
-  return level;
 }
