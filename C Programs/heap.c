@@ -20,7 +20,7 @@ int mcb_top = 0x20006800;    // the top of MCB
 int mcb_bot = 0x20006BFE;    // the address of the last MCB entry
 int mcb_ent_sz = 0x00000002; // 2B per MCB entry
 const int mcb_total = 512;   // # MCB entries: 2^9 = 512 entries
-char mcb[mcb_total];
+// Note to self: MSB of each MCB will hold status (allocated or not)
 
 /*
  * Convert a Cortex SRAM address to the corresponding array index.
@@ -76,15 +76,13 @@ _ralloc is _kalloc's helper function that is recursively called to
  */
 void *_ralloc(int size, int left, int right)
 {
-  printf("_ralloc: size=%d, left=%x, right=%x\n", size, left, right);
-  // base case: 2^u-1 < size < 2^U, allocate the block
+  // printf("_ralloc: size=%d, left=%x, right=%x\n", size, left, right);
+  //  base case: 2^u-1 < size < 2^U, allocate the block
 
   // compute the mcb address corresponding to the addr to be deleted
   // int mcb_addr = mcb_top + (addr - heap_top) / 16;
-  if (size > 0)
-  {
-    // allocate?
-  }
+
+  // look for closest fit (smallest available block that is larger than size)
 
   // if no suitable memory can be found, return NULL
   return NULL;
@@ -120,7 +118,10 @@ void _kinit()
     array[m2a(i)] = 0;
 
   // Initializing MCB: you need to implement in step 2's assembly code.
+  // this means
   *(short *)&array[m2a(mcb_top)] = max_size;
+  int maxLevel = get_level(max_size);
+  printf("[_kinit] largest level: %d/n", maxLevel);
 
   for (int i = 0x20006804; i < 0x20006C00; i += 2)
   {
@@ -138,7 +139,9 @@ void _kinit()
  */
 void *_kalloc(int size)
 {
-  // printf( "_kalloc called\n" );
+  printf("_kalloc called\n");
+  int level = get_level(size);
+  printf("\tlevel = %d\n", level);
   return _ralloc(size, mcb_top, mcb_bot);
 }
 
@@ -183,6 +186,7 @@ void *_malloc(int size)
     init = 1;
     _kinit(); // In step 2, you will call _kinit from Reset_Handler
   }
+  printArray();
   return _kalloc(size);
 }
 
@@ -199,9 +203,29 @@ void *_free(void *ptr)
 }
 
 /*
-  Get the index corresponding buddy of the index
+  get the address of the MCB buddy
 */
 int get_buddy(int arrIndex, int level)
 {
-  return arrIndex ^ (1 << level);
+  // return arrIndex ^ (1 << level);
+  return 0;
+}
+
+// get the first level that is larger than size
+// and is a power of 2
+int get_level(int size)
+{
+  if (size <= min_size)
+  {
+    return 5;
+  }
+  int sizeCounter = min_size; // 32 bytes
+  int level = 5;
+  while (sizeCounter < size)
+  {
+    sizeCounter *= 2;
+    level++;
+  }
+
+  return level;
 }
