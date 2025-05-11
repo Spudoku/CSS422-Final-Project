@@ -1,6 +1,6 @@
 /*
  * This is a C implementation of malloc( ) and free( ), based on the buddy
- * memory allocation algorithm. 
+ * memory allocation algorithm.
  */
 #include <stdio.h> // printf
 
@@ -9,25 +9,27 @@
  * Cortex-M's SRAM space.
  */
 // Heap
-char array[0x8000];            // simulate SRAM: 0x2000.0000 - 0x2000.7FFF
-int heap_top   = 0x20001000;   // the top of heap space
-int heap_bot   = 0x20004FE0;   // the address of the last 32B in heap
-int max_size   = 0x00004000;   // maximum allocation: 16KB = 2^14
-int min_size   = 0x00000020;   // minimum allocation: 32B = 2^5
+char array[0x8000];        // simulate SRAM: 0x2000.0000 - 0x2000.7FFF
+int heap_top = 0x20001000; // the top of heap space
+int heap_bot = 0x20004FE0; // the address of the last 32B in heap
+int max_size = 0x00004000; // maximum allocation: 16KB = 2^14
+int min_size = 0x00000020; // minimum allocation: 32B = 2^5
 
 // Memory Control Block: 2^10B = 1KB space
-int mcb_top    = 0x20006800;   // the top of MCB
-int mcb_bot    = 0x20006BFE;   // the address of the last MCB entry
-int mcb_ent_sz = 0x00000002;   // 2B per MCB entry
-int mcb_total  = 512;          // # MCB entries: 2^9 = 512 entries
+int mcb_top = 0x20006800;    // the top of MCB
+int mcb_bot = 0x20006BFE;    // the address of the last MCB entry
+int mcb_ent_sz = 0x00000002; // 2B per MCB entry
+const int mcb_total = 512;   // # MCB entries: 2^9 = 512 entries
+char mcb[mcb_total];
 
 /*
  * Convert a Cortex SRAM address to the corresponding array index.
  * @param  sram_addr address of Cortex-M's SRAM space starting at 0x20000000.
  * @return array index.
-	aka memory to array?
+  aka memory to array?
  */
-int m2a( int sram_addr ) {
+int m2a(int sram_addr)
+{
   int index = sram_addr - 0x20000000;
   // printf( "m2a: sram_addr = %x array_index = %d\n", sram_addr, index );
   return index;
@@ -37,9 +39,10 @@ int m2a( int sram_addr ) {
  * Reverse an array index back to the corresponding Cortex SRAM address.
  * @param  array index.
  * @return the corresponding Cortex-M's SRAM address in an integer.
-	aka array to memory?
- */ 
-int a2m( int array_index ) {
+  aka array to memory?
+ */
+int a2m(int array_index)
+{
   return array_index + 0x20000000;
 }
 
@@ -47,18 +50,19 @@ int a2m( int array_index ) {
  * In case if you want to print out, all array elements that correspond
  * to MCB: 0x2006800 - 0x20006C00.
  */
-void printArray( ) {
-  printf( "memroy ............................\n" );
-  for ( int i = 0; i < 0x8000; i+=4 )
-    if ( a2m( i ) >= 0x20006800 ) 
-	 printf( "%x = %x(%d)\n",
-		 a2m( i ), *(int *)&array[i], *(int *)&array[i] ); 
+void printArray()
+{
+  printf("memroy ............................\n");
+  for (int i = 0; i < 0x8000; i += 4)
+    if (a2m(i) >= 0x20006800)
+      printf("%x = %x(%d)\n",
+             a2m(i), *(int *)&array[i], *(int *)&array[i]);
 }
 
 /*
 * TODO: _ralloc
 _ralloc is _kalloc's helper function that is recursively called to
- * allocate a requested space, using the buddy memory allocaiton algorithm.
+ * allocate a requested space, using the buddy memory allocation algorithm.
  * Implement it by yourself in step 1.
  *
  * @param  size  the size of a requested memory space
@@ -70,13 +74,19 @@ _ralloc is _kalloc's helper function that is recursively called to
                 cast to 'void *' from smaller integer type 'int'
  *         Simply ignore it.
  */
-void *_ralloc( int size, int left, int right ) {
-  // printf( "_ralloc: size=%d, left=%x, right=%x\n", size, left, right );
-	// get current block
-	
-	// find smallest available block
-	
-	// 
+void *_ralloc(int size, int left, int right)
+{
+  printf("_ralloc: size=%d, left=%x, right=%x\n", size, left, right);
+  // base case: 2^u-1 < size < 2^U, allocate the block
+
+  // compute the mcb address corresponding to the addr to be deleted
+  // int mcb_addr = mcb_top + (addr - heap_top) / 16;
+  if (size > 0)
+  {
+    // allocate?
+  }
+
+  // if no suitable memory can be found, return NULL
   return NULL;
 }
 
@@ -89,10 +99,11 @@ _rfree is _kfree's helper function that is recursively called to
  * @param  mcb_addr that corresponds to a SRAM space to deallocate
  * @return the same as the mcb_addr argument in success, otherwise 0.
  */
-int _rfree( int mcb_addr ) {
+int _rfree(int mcb_addr)
+{
   // printf( "_rfree: mcb[%x] = %x\n",
   //	  mcb_addr, *(short *)&array[ m2a( mcb_addr ) ] )
-  
+
   return mcb_addr;
 }
 
@@ -102,17 +113,19 @@ int _rfree( int mcb_addr ) {
  * driver.c's main( ).
 
  */
-void _kinit( ) {
+void _kinit()
+{
   // Zeroing the heap space: no need to implement in step 2's assembly code.
-  for ( int i = 0x20001000; i < 0x20005000; i++ )
-    array[ m2a( i ) ] = 0;
+  for (int i = 0x20001000; i < 0x20005000; i++)
+    array[m2a(i)] = 0;
 
   // Initializing MCB: you need to implement in step 2's assembly code.
-  *(short *)&array[ m2a( mcb_top ) ] = max_size;
-    
-  for ( int i = 0x20006804; i < 0x20006C00; i += 2 ) {
-    array[ m2a( i ) ] = 0;
-    array[ m2a( i + 1) ] = 0;
+  *(short *)&array[m2a(mcb_top)] = max_size;
+
+  for (int i = 0x20006804; i < 0x20006C00; i += 2)
+  {
+    array[m2a(i)] = 0;
+    array[m2a(i + 1)] = 0;
   }
 }
 
@@ -123,9 +136,10 @@ void _kinit( ) {
  * @return a pointer to the allocated space
 
  */
-void *_kalloc( int size ) {
+void *_kalloc(int size)
+{
   // printf( "_kalloc called\n" );
-  return _ralloc( size, mcb_top, mcb_bot );
+  return _ralloc(size, mcb_top, mcb_bot);
 }
 
 /*
@@ -135,23 +149,23 @@ void *_kalloc( int size ) {
  * @return the address of this deallocated space.
 TODO: _kfree
  */
-void *_kfree( void *ptr ) {
-  int addr = (int )ptr;
+void *_kfree(void *ptr)
+{
+  int addr = (int)ptr;
 
   // validate the address
   // printf( "\n_kfree( %x )\n", ptr );
-  if ( addr < heap_top || addr > heap_bot )
+  if (addr < heap_top || addr > heap_bot)
     return NULL;
 
   // compute the mcb address corresponding to the addr to be deleted
-  int mcb_addr =  mcb_top + ( addr - heap_top ) / 16;
-  
-  if ( _rfree( mcb_addr ) == 0 )
+  int mcb_addr = mcb_top + (addr - heap_top) / 16;
+
+  if (_rfree(mcb_addr) == 0)
     return NULL;
   else
     return ptr;
 }
-
 
 // DO NOT COMPLETE
 /*
@@ -161,13 +175,15 @@ void *_kfree( void *ptr ) {
  * @param  the size of a requested memory space
  * @return a pointer to the allocated space
  */
-void *_malloc( int size ) {
+void *_malloc(int size)
+{
   static int init = 0;
-  if ( init == 0 ) {
+  if (init == 0)
+  {
     init = 1;
-    _kinit( ); // In step 2, you will call _kinit from Reset_Handler 
+    _kinit(); // In step 2, you will call _kinit from Reset_Handler
   }
-  return _kalloc( size );
+  return _kalloc(size);
 }
 
 /*
@@ -177,6 +193,15 @@ void *_malloc( int size ) {
  * @param  a pointer to the memory space to be deallocated.
  * @return the address of this deallocated space.
  */
-void *_free( void *ptr ) {
-  return _kfree( ptr );
+void *_free(void *ptr)
+{
+  return _kfree(ptr);
+}
+
+/*
+  Get the index corresponding buddy of the index
+*/
+int get_buddy(int arrIndex, int level)
+{
+  return arrIndex ^ (1 << level);
 }
