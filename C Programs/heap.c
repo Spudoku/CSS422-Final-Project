@@ -9,7 +9,9 @@
  * Cortex-M's SRAM space.
  */
 // Heap
-char array[0x8000];        // simulate SRAM: 0x2000.0000 - 0x2000.7FFF
+char array[0x8000]; // simulate SRAM: 0x2000.0000 - 0x2000.7FFF
+// this holds EVERYTHING, including memory AND MCB entries!
+
 int heap_top = 0x20001000; // the top of heap space
 int heap_bot = 0x20004FE0; // the address of the last 32B in heap
 int max_size = 0x00004000; // maximum allocation: 16KB = 2^14
@@ -52,7 +54,7 @@ int a2m(int array_index)
  */
 void printArray()
 {
-  printf("memroy ............................\n");
+  printf("memory ............................\n");
   for (int i = 0; i < 0x8000; i += 4)
     if (a2m(i) >= 0x20006800)
       printf("%x = %x(%d)\n",
@@ -80,7 +82,7 @@ void *_ralloc(int size, int left, int right)
 
   // look for closest fit (smallest available block that is larger than size)
   // iterate over MCB
-  int mid = (right + left) / 2;
+  // int mid = (right + left) / 2;
 
   int addr = findBestBlock(size, left, right);
   if (!addr)
@@ -88,11 +90,12 @@ void *_ralloc(int size, int left, int right)
     return NULL;
   }
   int block_size = getBlockSize(addr);
+
   //  base case: 2^u-1 < size <= 2^U, allocate the block
   int allocLevel = get_level(size);
   int blockLevel = get_level(block_size);
 
-  printf("\t[_ralloc] mid = %X; address of chosen block: %X; size of chosen block: %d\n", mid, addr, block_size);
+  printf("\t[_ralloc] address of chosen block: %X; size of chosen block: %d\n", addr, block_size);
   printf("\tallocLevel: %d; blockLevel: %d\n", allocLevel, blockLevel);
 
   if (blockLevel > allocLevel)
@@ -101,11 +104,18 @@ void *_ralloc(int size, int left, int right)
     // split and recurse
     *(short *)&array[m2a(addr)] = new_size;                                    // left buddy
     *(short *)&array[m2a(addr + new_size / min_size * mcb_ent_sz)] = new_size; // right buddy
+    int newRight = addr + (new_size / min_size * mcb_ent_sz);
     printf("[_ralloc] RECURSIVE CALL\n");
-    // return _ralloc(size, left, right);
+    return _ralloc(size, left, newRight);
   }
   else
   {
+    // set allocation flag
+    *(short *)&array[m2a(addr)] |= 0x8000;
+    // find address in heap
+    int offset = (addr - mcb_top) / mcb_ent_sz; // how many entries away from the start of MCB
+    void *heap_ptr = (void *)(heap_top + offset * min_size);
+    return heap_ptr;
   }
   // if no suitable memory can be found, return NULL
   return NULL;
@@ -164,7 +174,7 @@ int get_level(int size)
 int findBestBlock(int size, int left, int right)
 {
   // start from mcb_top
-  printf("[findBestBlock]\n");
+  // printf("[findBestBlock]\n");
   for (int addr = left; addr <= right;)
   {
     short entry = *(short *)&array[m2a(addr)];
@@ -178,12 +188,13 @@ int findBestBlock(int size, int left, int right)
     int blockSize = getBlockSize(addr);
     // mask to get last 16 bits
     int allocated = getAllocated(addr);
-    printf("[findBestBlock] mcb at %X: size = %d, %s\n", addr, blockSize, allocated ? "allocated" : "free");
+    // printf("[findBestBlock] mcb at %X: size = %d, %s\n", addr, blockSize, allocated ? "allocated" : "free");
     if (blockSize >= size && !allocated)
     {
-      printf("\tthis block was chosen!\n");
+      // printf("\tthis block was chosen!\n");
       return addr;
     }
+    // go to the next block
     addr += (blockSize / min_size) * mcb_ent_sz;
   }
   // no suitable block found
@@ -194,10 +205,6 @@ int getBlockSize(int addr)
 {
   short data = *(short *)&array[m2a(addr)];
   return data & 0x7FFF;
-}
-
-void setBlockSize(int addr, int newSize)
-{
 }
 
 int getAllocated(int addr)
@@ -222,8 +229,8 @@ void _kinit()
   // this means
   *(short *)&array[m2a(mcb_top)] = max_size;
   int maxLevel = get_level(max_size);
-  printf("[_kinit] largest level: %d\n", maxLevel);
-  printf("[_kinit] contents of array[m2a(mcb_top)]: 0x%X\n", *(short *)&array[m2a(mcb_top)]);
+  // printf("[_kinit] largest level: %d\n", maxLevel);
+  // printf("[_kinit] contents of array[m2a(mcb_top)]: 0x%X\n", *(short *)&array[m2a(mcb_top)]);
 
   for (int i = 0x20006804; i < 0x20006C00; i += 2)
   {
@@ -243,7 +250,7 @@ void *_kalloc(int size)
 {
   printf("_kalloc called\n");
   int level = get_level(size);
-  printf("\tlevel = %d\n", level);
+  // printf("\tlevel = %d\n", level);
   return _ralloc(size, mcb_top, mcb_bot);
 }
 
