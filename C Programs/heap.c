@@ -2,7 +2,7 @@
  * This is a C implementation of malloc( ) and free( ), based on the buddy
  * memory allocation algorithm.
  */
-#include <stdio.h> // printf
+#include <stdio.h> // //printf
 
 /*
  * The following global variables are used to simulate memory allocation
@@ -35,7 +35,7 @@ const int mcb_total = 512;   // # MCB entries: 2^9 = 512 entries
 int m2a(int sram_addr)
 {
   int index = sram_addr - 0x20000000;
-  // printf( "m2a: sram_addr = %x array_index = %d\n", sram_addr, index );
+  // //printf( "m2a: sram_addr = %x array_index = %d\n", sram_addr, index );
   return index;
 }
 
@@ -80,7 +80,7 @@ _ralloc is _kalloc's helper function that is recursively called to
  */
 void *_ralloc(int size, int left, int right)
 {
-  printf("[_ralloc]: size=%d, left=%X, right=%X\n", size, left, right);
+  // printf("[_ralloc]: size=%d, left=%X, right=%X\n", size, left, right);
 
   // look for closest fit (smallest available block that is larger than size)
   // iterate over MCB
@@ -97,8 +97,8 @@ void *_ralloc(int size, int left, int right)
   int allocLevel = get_level(size);
   int blockLevel = get_level(block_size);
 
-  printf("\t[_ralloc] address of chosen block: %X; size of chosen block: %d\n", addr, block_size);
-  printf("\tallocLevel: %d; blockLevel: %d\n", allocLevel, blockLevel);
+  // printf("\t[_ralloc] address of chosen block: %X; size of chosen block: %d\n", addr, block_size);
+  // printf("\tallocLevel: %d; blockLevel: %d\n", allocLevel, blockLevel);
 
   if (blockLevel > allocLevel)
   {
@@ -107,7 +107,7 @@ void *_ralloc(int size, int left, int right)
     *(short *)&array[m2a(addr)] = new_size;                                    // left buddy
     *(short *)&array[m2a(addr + new_size / min_size * mcb_ent_sz)] = new_size; // right buddy
     int newRight = addr + (new_size / min_size * mcb_ent_sz);
-    printf("[_ralloc] RECURSIVE CALL\n");
+    // printf("[_ralloc] RECURSIVE CALL\n");
     return _ralloc(size, left, newRight);
   }
   else
@@ -136,13 +136,13 @@ int _rfree(int mcb_addr)
 {
   short entry = *(short *)&array[m2a(mcb_addr)];
 
-  // printf("_rfree: mcb[%x] = %x\n",
+  // //printf("_rfree: mcb[%x] = %x\n",
   //        mcb_addr, *(short *)&array[m2a(mcb_addr)]);
   // find the block at the address
   int blockSize = getBlockSize(mcb_addr);
   int allocated = getAllocated(mcb_addr);
-  // printf("[_rfree] mcb at %X: size = %d, %s\n", mcb_addr, blockSize, allocated ? "allocated" : "free");
-  printf("[_rfree] mcb at %X: size = %d, %d\n", mcb_addr, blockSize, allocated);
+  // //printf("[_rfree] mcb at %X: size = %d, %s\n", mcb_addr, blockSize, allocated ? "allocated" : "free");
+  // printf("[_rfree] mcb at %X: size = %d, %d\n", mcb_addr, blockSize, allocated);
   int buddyAddr = get_buddy(mcb_addr);
   // recursively merge as much as possible
   return mcb_addr;
@@ -157,25 +157,25 @@ int get_buddy(int addr)
   // check size of neighboring blocks
   int buddyAddr; // address of buddy
 
-  printf("[get_buddy] address: %X; size: %d; \n", addr, getBlockSize(addr));
+  // printf("[get_buddy] address: %X; size: %d; \n", addr, getBlockSize(addr));
   buddyAddr = addr - getBlockSize(addr);
   if (buddyAddr >= mcb_top)
   {
-    printf("\tTesting upper address: %X; size: %d; \n", buddyAddr, getBlockSize(buddyAddr));
+    // printf("\tTesting upper address: %X; size: %d; \n", buddyAddr, getBlockSize(buddyAddr));
   }
   else
   {
-    printf("\tupper address: %X is out of bounds! \n", buddyAddr, getBlockSize(buddyAddr));
+    // printf("\tupper address: %X is out of bounds! \n", buddyAddr, getBlockSize(buddyAddr));
   }
 
   buddyAddr = addr + getBlockSize(addr);
   if (buddyAddr <= mcb_bot)
   {
-    printf("\tTesting lower address: %X; size: %d; \n", buddyAddr, getBlockSize(buddyAddr));
+    // printf("\tTesting lower address: %X; size: %d; \n", buddyAddr, getBlockSize(buddyAddr));
   }
   else
   {
-    printf("\tlower address: %X is out of bounds! \n", buddyAddr, getBlockSize(buddyAddr));
+    // printf("\tlower address: %X is out of bounds! \n", buddyAddr, getBlockSize(buddyAddr));
   }
 
   if (isUp)
@@ -216,7 +216,7 @@ int get_level(int size)
 int findBestBlock(int size, int left, int right)
 {
   // start from mcb_top
-  // printf("[findBestBlock]\n");
+  // //printf("[findBestBlock]\n");
   for (int addr = left; addr <= right;)
   {
     short entry = *(short *)&array[m2a(addr)];
@@ -225,17 +225,17 @@ int findBestBlock(int size, int left, int right)
       addr += 2;
       continue;
     }
-    // printf("[findBestBlock]: mcb[%x] = %x\n",
+    // //printf("[findBestBlock]: mcb[%x] = %x\n",
     //        addr, *(short *)&array[m2a(addr)]);
 
     // mask to get first 16 bits
     int blockSize = getBlockSize(addr);
     // mask to get last 16 bits
     int allocated = getAllocated(addr);
-    // printf("[findBestBlock] mcb at %X: size = %d, %s\n", addr, blockSize, allocated ? "allocated" : "free");
+    // //printf("[findBestBlock] mcb at %X: size = %d, %s\n", addr, blockSize, allocated ? "allocated" : "free");
     if (blockSize >= size && !allocated)
     {
-      // printf("\tthis block was chosen!\n");
+      // //printf("\tthis block was chosen!\n");
       return addr;
     }
     // go to the next block
@@ -273,8 +273,8 @@ void _kinit()
   // this means
   *(short *)&array[m2a(mcb_top)] = max_size;
   int maxLevel = get_level(max_size);
-  // printf("[_kinit] largest level: %d\n", maxLevel);
-  // printf("[_kinit] contents of array[m2a(mcb_top)]: 0x%X\n", *(short *)&array[m2a(mcb_top)]);
+  // //printf("[_kinit] largest level: %d\n", maxLevel);
+  // //printf("[_kinit] contents of array[m2a(mcb_top)]: 0x%X\n", *(short *)&array[m2a(mcb_top)]);
 
   for (int i = 0x20006804; i < 0x20006C00; i += 2)
   {
@@ -292,9 +292,9 @@ void _kinit()
  */
 void *_kalloc(int size)
 {
-  printf("_kalloc called\n");
+  // printf("_kalloc called\n");
   int level = get_level(size);
-  // printf("\tlevel = %d\n", level);
+  // //printf("\tlevel = %d\n", level);
   return _ralloc(size, mcb_top, mcb_bot);
 }
 
@@ -310,7 +310,7 @@ void *_kfree(void *ptr)
   int addr = (int)ptr;
 
   // validate the address
-  // printf( "\n_kfree( %x )\n", ptr );
+  // //printf( "\n_kfree( %x )\n", ptr );
   if (addr < heap_top || addr > heap_bot)
     return NULL;
 
