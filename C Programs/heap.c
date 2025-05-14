@@ -149,7 +149,20 @@ int _rfree(int mcb_addr)
   // get data about buddyAddr
   if (buddyAddr)
   {
+    printf("[_rfree] attempting merge with buddy %X\n", buddyAddr);
+
+    // recursively attempt merge
+    if (!getAllocated(buddyAddr))
+    {
+      // TODO: merge recursively
+    }
   }
+  else
+  {
+    printf("[_rfree] no suitable buddy found to merge\n");
+  }
+
+  // deallocate
   return mcb_addr;
 }
 
@@ -158,7 +171,6 @@ int _rfree(int mcb_addr)
 */
 int get_buddy(int addr)
 {
-  int isUp = 0;
   // check size of neighboring blocks
   int buddyAddr = 0; // address of buddy
   int lowerBuddy;    // tentative lower buddy
@@ -188,19 +200,20 @@ int get_buddy(int addr)
     printf("\tlower address: %X is out of bounds! \n", lowerBuddy, getBlockSize(lowerBuddy));
   }
 
-  // calculate isUp
-  if (isUp)
+  // determine whether the buddy is above or below
+  if (getBlockSize(upperBuddy) > min_size && getBlockSize(upperBuddy) <= getBlockSize(addr) && upperBuddy >= mcb_top)
   {
     // go upwards?
     printf("\tchoosing upper buddy %x\n", upperBuddy);
     buddyAddr = upperBuddy;
   }
-  else
+  else if (getBlockSize(lowerBuddy) > min_size && getBlockSize(lowerBuddy) <= getBlockSize(addr) && lowerBuddy <= mcb_bot)
   {
     // go downwards?
     printf("\tchoosing lower buddy %x\n", lowerBuddy);
     buddyAddr = lowerBuddy;
   }
+  printf("\treturning %X\n", buddyAddr);
   return buddyAddr;
 }
 
