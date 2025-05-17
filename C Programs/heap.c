@@ -112,6 +112,8 @@ void *_ralloc(int size, int left, int right)
   }
   else
   {
+
+    printf("[_ralloc] entry = %X (or %d)\n", *(short *)&array[m2a(addr)], *(short *)&array[m2a(addr)]);
     // set allocation flag
     *(short *)&array[m2a(addr)] |= 0x8000;
     // find address in heap
@@ -135,26 +137,31 @@ _rfree is _kfree's helper function that is recursively called to
 int _rfree(int mcb_addr)
 {
   short entry = *(short *)&array[m2a(mcb_addr)];
-
-  // //printf("_rfree: mcb[%x] = %x\n",
-  //        mcb_addr, *(short *)&array[m2a(mcb_addr)]);
-  // find the block at the address
+  // printArray();
+  //  //printf("_rfree: mcb[%x] = %x\n",
+  //         mcb_addr, *(short *)&array[m2a(mcb_addr)]);
+  //  find the block at the address
   int blockSize = getBlockSize(mcb_addr);
   int allocated = getAllocated(mcb_addr);
   // //printf("[_rfree] mcb at %X: size = %d, %s\n", mcb_addr, blockSize, allocated ? "allocated" : "free");
   // printf("[_rfree] mcb at %X: size = %d, %d\n", mcb_addr, blockSize, allocated);
   int buddyAddr = get_buddy(mcb_addr);
   // recursively merge as much as possible
-
+  // short buddyEntry = *(short *)&array[m2a(buddyAddr)];
+  printf("[_rfree] entry = %X (or %d)\n", entry, entry);
   // get data about buddyAddr
   if (buddyAddr)
   {
-    printf("[_rfree] attempting merge with buddy %X\n", buddyAddr);
-
-    // recursively attempt merge
+    printf("[_rfree] attepmting to merge %X (size %d) with buddy %X (size %d)\n", mcb_addr, blockSize, buddyAddr, getBlockSize(buddyAddr));
+    printf("\tlooking at array conents. Array contents of mcb_addr: %X; contents of buddy:\n", entry);
     if (!getAllocated(buddyAddr))
     {
       // TODO: merge recursively
+      printf("\tbuddy is not allocated!");
+    }
+    else
+    {
+      printf("\tbuddy is allocated!\n");
     }
   }
   else
@@ -176,10 +183,10 @@ int get_buddy(int addr)
   int lowerBuddy;    // tentative lower buddy
   int upperBuddy;    // tentative upper buddy
   printf("[get_buddy] testing address %X\n", addr);
-  traverseMCB(mcb_top, mcb_bot);
-  // printf("[get_buddy] address: %X; size: %d; \n", addr, getBlockSize(addr));
-  // compute the mcb address corresponding to the addr to be deleted
-  // int mcb_addr = mcb_top + (addr - heap_top) / 16;
+  // traverseMCB(mcb_top, mcb_bot);
+  //  printf("[get_buddy] address: %X; size: %d; \n", addr, getBlockSize(addr));
+  //  compute the mcb address corresponding to the addr to be deleted
+  //  int mcb_addr = mcb_top + (addr - heap_top) / 16;
   upperBuddy = addr - (getBlockSize(addr) / 16);
   if (upperBuddy >= mcb_top)
   {
@@ -201,13 +208,13 @@ int get_buddy(int addr)
   }
 
   // determine whether the buddy is above or below
-  if (getBlockSize(upperBuddy) > min_size && getBlockSize(upperBuddy) <= getBlockSize(addr) && upperBuddy >= mcb_top)
+  if (getBlockSize(upperBuddy) == getBlockSize(addr) && upperBuddy >= mcb_top)
   {
     // go upwards?
     printf("\tchoosing upper buddy %x\n", upperBuddy);
     buddyAddr = upperBuddy;
   }
-  else if (getBlockSize(lowerBuddy) > min_size && getBlockSize(lowerBuddy) <= getBlockSize(addr) && lowerBuddy <= mcb_bot)
+  else if (getBlockSize(lowerBuddy) == getBlockSize(addr) && lowerBuddy <= mcb_bot)
   {
     // go downwards?
     printf("\tchoosing lower buddy %x\n", lowerBuddy);
@@ -302,12 +309,16 @@ int getBlockSize(int addr)
 {
   short data = *(short *)&array[m2a(addr)];
   return data & 0x7FFF;
+  // 0x7FFF = 0000 0000 0000 0000 0111 1111 1111 1111
+  // use a bitwise AND
 }
 
 int getAllocated(int addr)
 {
   short data = *(short *)&array[m2a(addr)];
   return data & 0x8000;
+  // 0x8000 = 0000 0000 0000 0000 1000 0000 0000 0000
+  // bitwise AND
 }
 
 /*
