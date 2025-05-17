@@ -17,6 +17,7 @@
 
 extern void *_malloc(int size); // you need to implement in heap.c
 extern void *_free(void *ptr);  // you need to implement in heap.c
+extern void *_print_mcb();
 
 int *alarmed;
 
@@ -62,13 +63,13 @@ int main()
 
   void *mem7 = _malloc(512);
   printf("mem7 = %x\n", mem7);
-
+  _print_mcb();
   _free(mem6);
   _free(mem5);
   _free(mem1);
   _free(mem7);
   _free(mem2);
-
+  printf("\n\n\n\n\n\n\n\n");
   void *mem8 = _malloc(4096);
   printf("mem8 = %x\n", mem8);
 
@@ -76,27 +77,28 @@ int main()
   _free(mem3);
   _free(mem8);
 
+  _print_mcb();
   /*
-  alarmed = (int *)_malloc( 4 );
-  *alarmed = 1;
-  printf( "%d\n", *alarmed);
+alarmed = (int *)_malloc( 4 );
+*alarmed = 1;
+printf( "%d\n", *alarmed);
 
-  signal( SIGALRM, sig_handler1 );
-  alarm( 2 );
-  while ( *alarmed != 2 ) {
-    void* mem9 = _malloc( 4 );
-    _free( mem9 );
-  }
-  printf( "%d\n", *alarmed);
+signal( SIGALRM, sig_handler1 );
+alarm( 2 );
+while ( *alarmed != 2 ) {
+  void* mem9 = _malloc( 4 );
+  _free( mem9 );
+}
+printf( "%d\n", *alarmed);
 
-  signal( SIGALRM, sig_handler2 );
-  alarm( 3 );
-  while ( *alarmed != 3 ) {
-    void* mem9 = _malloc( 4 );
-    _free( mem9 );
-  }
-  printf( "%d\n", *alarmed);
-  */
+signal( SIGALRM, sig_handler2 );
+alarm( 3 );
+while ( *alarmed != 3 ) {
+  void* mem9 = _malloc( 4 );
+  _free( mem9 );
+}
+printf( "%d\n", *alarmed);
+*/
 
   return 0;
 }
