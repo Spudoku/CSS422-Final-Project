@@ -167,6 +167,8 @@ int _rfree(int mcb_addr)
 
     int mergedAddr = (buddyAddr < mcb_addr) ? buddyAddr : mcb_addr;
     *(short *)&array[m2a(mergedAddr)] = newSize;
+    printf("[_rfree] mergedAddr: %x; a2m mergedAddr = %X; m2a mergedAddr: %x\n", mergedAddr, a2m(mergedAddr), m2a(mergedAddr));
+    printf("[_rfree] merged %X and %X into %X (size %d)\n", mcb_addr, buddyAddr, mergedAddr, newSize);
     return _rfree(mergedAddr);
   }
 
@@ -244,24 +246,24 @@ int findBestBlock(int size, int left, int right)
       addr += 2;
       continue;
     }
-    printf("[findBestBlock]: mcb[%x] = %x\n",
-           addr, *(short *)&array[m2a(addr)]);
+    // printf("[findBestBlock]: mcb[%x] = %x\n",
+    //        addr, *(short *)&array[m2a(addr)]);
 
     // mask to get first 16 bits
     int blockSize = getBlockSize(addr);
     // mask to get last 16 bits
     int allocated = getAllocated(addr);
-    printf("[findBestBlock] mcb at %X: size = %d, %s\n", addr, blockSize, allocated ? "allocated" : "free");
+    // printf("[findBestBlock] mcb at %X: size = %d, %s\n", addr, blockSize, allocated ? "allocated" : "free");
     if (blockSize >= size && !allocated)
     {
-      printf("\tthis block was chosen!\n");
+      // printf("\tthis block was chosen!\n");
       return addr;
     }
     // go to the next block
     addr += (blockSize / min_size) * mcb_ent_sz;
   }
   // no suitable block found
-  printf("[findBestBlock] no suitable block found!\n");
+  // printf("[findBestBlock] no suitable block found!\n");
   return 0;
 }
 
