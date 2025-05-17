@@ -49,44 +49,44 @@ int main()
   void *mem7 = _malloc(512);
   printf("mem7 = %x\n", mem7);
 
-  _print_mcb();
-  printf("[driver_cpg] Freeing mem6 (%X)\n", mem6);
+  //_print_mcb();
+  // printf("[driver_cpg] Freeing mem6 (%X)\n", mem6);
   _free(mem6);
-  printf("\n\n");
+  // printf("\n\n");
 
-  printf("[driver_cpg] Freeing mem5 (%X)\n", mem5);
+  // printf("[driver_cpg] Freeing mem5 (%X)\n", mem5);
   _free(mem5);
-  printf("\n\n");
+  // printf("\n\n");
 
-  printf("[driver_cpg] Freeing mem1 (%X)\n", mem1);
+  // printf("[driver_cpg] Freeing mem1 (%X)\n", mem1);
   _free(mem1);
-  printf("\n\n");
+  // printf("\n\n");
 
-  printf("[driver_cpg] Freeing mem7 (%X)\n", mem7);
+  // printf("[driver_cpg] Freeing mem7 (%X)\n", mem7);
   _free(mem7);
-  printf("\n\n");
+  // printf("\n\n");
 
-  printf("[driver_cpg] Freeing mem2 (%X)\n", mem2);
+  // printf("[driver_cpg] Freeing mem2 (%X)\n", mem2);
   _free(mem2);
-  printf("\n\n");
+  // printf("\n\n");
 
-  _print_mcb();
-  printf("\n\n");
+  //_print_mcb();
+  // printf("\n\n");
   void *mem8 = _malloc(4096);
   printf("mem8 = %x\n", mem8);
-  printf("\n\n");
+  // printf("\n\n");
 
-  printf("[driver_cpg] Freeing mem4 (%X)\n", mem4);
+  // printf("[driver_cpg] Freeing mem4 (%X)\n", mem4);
   _free(mem4);
-  printf("\n\n");
+  // printf("\n\n");
 
-  printf("[driver_cpg] Freeing mem3 (%X)\n", mem3);
+  // printf("[driver_cpg] Freeing mem3 (%X)\n", mem3);
   _free(mem3);
-  printf("\n\n");
+  // printf("\n\n");
 
-  printf("[driver_cpg] Freeing mem8 (%X)\n", mem8);
+  // printf("[driver_cpg] Freeing mem8 (%X)\n", mem8);
   _free(mem8);
-  printf("\n\n");
+  // printf("\n\n");
   /*
   alarmed = (int *)_malloc( 4 );
   *alarmed = 1;
