@@ -63,6 +63,7 @@ int main()
 
   void *mem7 = _malloc(512);
   printf("mem7 = %x\n", mem7);
+
   _print_mcb();
   _free(mem6);
   _free(mem5);
@@ -71,8 +72,16 @@ int main()
   _free(mem2);
   printf("\n\n\n\n\n\n\n\n");
   void *mem8 = _malloc(4096);
-  printf("mem8 = %x\n", mem8);
 
+  printf("after 'allocating' mem8: \n");
+  printf("mem1 = %x\n", mem1);
+  printf("mem2 = %x\n", mem2);
+  printf("mem3 = %x\n", mem3);
+  printf("mem4 = %x\n", mem4);
+  printf("mem5 = %x\n", mem5);
+  printf("mem6 = %x\n", mem6);
+  printf("mem7 = %x\n", mem7);
+  printf("mem8 = %x\n", mem8);
   _free(mem4);
   _free(mem3);
   _free(mem8);

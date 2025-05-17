@@ -139,13 +139,27 @@ int _rfree(int mcb_addr)
   // mart mcb_addr as free
   *(short *)&array[m2a(mcb_addr)] &= 0x7FFF;
   // printArray();
-  printf("_rfree: mcb[%x] = %x\n",
-         mcb_addr, *(short *)&array[m2a(mcb_addr)]);
+  // printf("_rfree: mcb[%x] = %x\n",
+  //        mcb_addr, *(short *)&array[m2a(mcb_addr)]);
   //  find the block at the address
   int blockSize = getBlockSize(mcb_addr);
   int buddyAddr = get_buddy(mcb_addr);
 
   // recursively merge as much as possible
+  if (buddyAddr)
+  {
+    printf("[_rfree] attempting to merge %X (size %d) with buddy %X (size %d)\n",
+           mcb_addr, blockSize, buddyAddr, getBlockSize(buddyAddr));
+    if (getAllocated(buddyAddr))
+    {
+      printf("\tbuddy is allocated!\n");
+    }
+
+    if (getBlockSize(buddyAddr) != blockSize)
+    {
+      printf("\tbuddy size is not the same as the freed block~\n");
+    }
+  }
   if (buddyAddr != 0 && !getAllocated(buddyAddr) && getBlockSize(buddyAddr) == blockSize)
   {
     int newSize = blockSize * 2;
@@ -174,26 +188,10 @@ int get_buddy(int addr)
   //  compute the mcb address corresponding to the addr to be deleted
   //  int mcb_addr = mcb_top + (addr - heap_top) / 16;
   upperBuddy = addr - (getBlockSize(addr) / 16);
-  if (upperBuddy >= mcb_top)
-  {
-    // printf("\tTesting upper address: %X; size: %d; \n", upperBuddy, getBlockSize(upperBuddy));
-  }
-  else
-  {
-    // printf("\tupper address: %X is out of bounds! \n", upperBuddy, getBlockSize(upperBuddy));
-  }
-
-  lowerBuddy = addr + getBlockSize(addr);
-  if (lowerBuddy <= mcb_bot)
-  {
-    // printf("\tTesting lower address: %X; size: %d; \n", lowerBuddy, getBlockSize(lowerBuddy));
-  }
-  else
-  {
-    // printf("\tlower address: %X is out of bounds! \n", lowerBuddy, getBlockSize(lowerBuddy));
-  }
-
-  // determine whether the buddy is above or below
+  lowerBuddy = addr + (getBlockSize(addr) / 16);
+  // printf("[get_buddy] addr: %X; lowerBuddy: %X; upperBuddy: %X\n", addr, lowerBuddy, upperBuddy);
+  // printf("\taddr size: %d; lowerAddr size: %d; upperbuddy size: %d\n", getBlockSize(addr), getBlockSize(lowerBuddy), getBlockSize(upperBuddy));
+  //  determine whether the buddy is above or below
   if (getBlockSize(upperBuddy) == getBlockSize(addr) && upperBuddy >= mcb_top)
   {
     // go upwards?
@@ -246,23 +244,24 @@ int findBestBlock(int size, int left, int right)
       addr += 2;
       continue;
     }
-    // //// printf("[findBestBlock]: mcb[%x] = %x\n",
-    //        addr, *(short *)&array[m2a(addr)]);
+    printf("[findBestBlock]: mcb[%x] = %x\n",
+           addr, *(short *)&array[m2a(addr)]);
 
     // mask to get first 16 bits
     int blockSize = getBlockSize(addr);
     // mask to get last 16 bits
     int allocated = getAllocated(addr);
-    // //// printf("[findBestBlock] mcb at %X: size = %d, %s\n", addr, blockSize, allocated ? "allocated" : "free");
+    printf("[findBestBlock] mcb at %X: size = %d, %s\n", addr, blockSize, allocated ? "allocated" : "free");
     if (blockSize >= size && !allocated)
     {
-      // //// printf("\tthis block was chosen!\n");
+      printf("\tthis block was chosen!\n");
       return addr;
     }
     // go to the next block
     addr += (blockSize / min_size) * mcb_ent_sz;
   }
   // no suitable block found
+  printf("[findBestBlock] no suitable block found!\n");
   return 0;
 }
 
