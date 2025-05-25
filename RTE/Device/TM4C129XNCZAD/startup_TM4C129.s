@@ -207,6 +207,7 @@ Reset_Handler   PROC
                 IMPORT  SystemInit
 				IMPORT  __main
 				IMPORT	_syscall_table_init
+				IMPORT	_heap_init
 	
 				; Store __initial_sp into MSP (Step 1 toward Midpoint Report)
 
@@ -218,6 +219,8 @@ Reset_Handler   PROC
 				LDR		R0, =_syscall_table_init
 				BLX		R0
 		; Initialize the heap space (Step 2)
+				LDR		R0, =_heap_init
+				BLX		R0
 		; Initialize the SysTick timer (Step 2)
 	
 		; Store __initial_user_sp into PSP (Step 1 toward Midpoint Report)

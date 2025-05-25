@@ -22,7 +22,22 @@ SRAM_START	EQU		0x20000000	; start of SRAM
 		EXPORT	_heap_init
 _heap_init
 		; mark the entire heap as a single unallocated block of memory
-
+		; MCB[mcb_top - SRAM_START] = MAX_SIZE
+		LDR R1, =MCB_TOP
+		
+		LDR R2, =MCB_BOT
+		LDR	R3, =MAX_SIZE
+		STR	R3, [R1]
+		ADD	R1, R1, #4
+		MOV	R4, #3
+_heap_init_loop
+		CMP	R1, R2
+		BCS	_heap_init_done		; if R1 >= R2
+		; zero stuff out I guess?
+		
+		STR	R4, [R1]
+		ADD	R1, R1, #2			; R1 += 2
+_heap_init_done
 		MOV		pc, lr
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
