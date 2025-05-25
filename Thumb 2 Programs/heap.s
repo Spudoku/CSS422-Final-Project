@@ -29,44 +29,74 @@ _heap_init
 		LDR	R3, =MAX_SIZE
 		STR	R3, [R1]
 		ADD	R1, R1, #4
-		MOV	R4, #3
+		; zero out the MCB array
+		MOV	R4, #0x00
 _heap_init_loop
 		CMP	R1, R2
 		BCS	_heap_init_done		; if R1 >= R2
-		; zero stuff out I guess?
-		
 		STR	R4, [R1]
+		;STR R4, [R1, #1]
 		ADD	R1, R1, #2			; R1 += 2
+		B	_heap_init_loop
 _heap_init_done
 		MOV		pc, lr
+		
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Kernel Memory Allocation
+; TODO: _ralloc
+_ralloc
+		
+		BX		LR
+
+
 ; void* _k_alloc( int size )
 		EXPORT	_kalloc
+			; parameters:
+			; R0 = int size
 _kalloc
-	;; Implement by yourself
+	; set up parameters for _ralloc
+	; R0 = size (same as passed in parameter)
+	; R1 = MCB_TOP
+	; R2 = MCB_BOT
+		LDR		R1, =MCB_TOP
+		LDR		R2, =MCB_BOT
+		
+		BL		_ralloc
 		MOV		pc, lr
 		
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Kernel Memory De-allocation
+; TODO: _rfree
+; 
+_rfree
+		
+		MOV		pc, lr
+
 ; void free( void *ptr )
 		EXPORT	_kfree
 _kfree
 	;; Implement by yourself
+	; validate address
+	
+	; compute MCB address
+	
+	; invoke _rfree
 		MOV		pc, lr					; return from rfree( )
 		
+		
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Helper methods
 		; TODO: m2a and a2m
 		; R0 = SRAM_ADDR
 _m2a
-		PUSH	{LR}
-
-		POP		{LR}
+		
+		BX		LR
 		; R0 = array_index (in MCB)
 _a2m
-		PUSH	{LR}
-
-		POP		{LR}
+		
+		BX		LR
 		END
 			
 			
