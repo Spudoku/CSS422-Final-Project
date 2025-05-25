@@ -46,8 +46,33 @@ _heap_init_done
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Kernel Memory Allocation
 ; TODO: _ralloc
+; Parameters:
+; R0: size
+; R1: left
+; R2: right
 _ralloc
+		; defining entire
+		SUB		R3, R2, R1; int entire = right - left  + mcb_ent_sz;
+		LDR		R4, =MCB_ENT_SZ	
+		ADD		R3, R3, R4
 		
+		; defining half
+		MOV		R5, #2
+		UDIV 	R4, R3, R5	; int half = entire / 2;
+		
+		; defining midpoint
+		ADD		R5, R1, R4; int midpoint = left + half;
+		
+		; defining heap_addr
+		MOV		R6, #0x0; int heap_addr = NULL;
+		
+		; definining act_entire_size
+		LSL		R7, R3, #4 ; int act_entire_size = entire * 16;
+		
+		; defining act_half_size
+		LSL		R8, R4, #4 ; int act_half_size = half * 16;
+		
+		; TODO: base case for _ralloc
 		BX		LR
 
 
