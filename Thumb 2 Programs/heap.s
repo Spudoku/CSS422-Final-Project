@@ -15,12 +15,14 @@ MCB_TOTAL	EQU		512			; 2^9 = 512 entries
 	
 INVALID		EQU		-1			; an invalid id
 	
+SRAM_START	EQU		0x20000000	; start of SRAM
+	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Memory Control Block Initialization
 		EXPORT	_heap_init
 _heap_init
-	;; Implement by yourself
-	
+		; mark the entire heap as a single unallocated block of memory
+
 		MOV		pc, lr
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -39,4 +41,17 @@ _kfree
 	;; Implement by yourself
 		MOV		pc, lr					; return from rfree( )
 		
+		; TODO: m2a and a2m
+		; R0 = SRAM_ADDR
+_m2a
+		PUSH	{LR}
+
+		POP		{LR}
+		; R0 = array_index (in MCB)
+_a2m
+		PUSH	{LR}
+
+		POP		{LR}
 		END
+			
+			
