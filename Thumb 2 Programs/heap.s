@@ -92,6 +92,15 @@ _ralloc_recurse_left
 		B		_ralloc_left_good
 _ralloc_recurse_right
 		; return _ralloc( size, midpoint, right );
+		PUSH	{R0-R3}
+		MOV		R1, R5
+		BL		_ralloc
+		MOV		R9, R0
+		POP		{R0-R3}
+		
+		MOV		R0, R9
+		POP		{lr}
+		BX		lr
 		
 		
 _ralloc_left_good			; aka "left recursion worked so don't bother with base

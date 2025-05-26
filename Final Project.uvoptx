@@ -144,7 +144,7 @@
           <Type>0</Type>
           <LineNumber>27</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>1924</Address>
+          <Address>1944</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -172,7 +172,7 @@
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>0x00000349</ItemText>
+          <ItemText>0x20006028</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
