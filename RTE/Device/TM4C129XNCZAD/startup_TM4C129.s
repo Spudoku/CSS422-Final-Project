@@ -210,21 +210,27 @@ Reset_Handler   PROC
 				IMPORT	_heap_init
 	
 				; Store __initial_sp into MSP (Step 1 toward Midpoint Report)
-
+				LDR R0, =__initial_sp ; thread mode uses MSP
+				MSR MSP, R0
+				;MOV		sp, R0
 				ISB     ; Let's leave as is from the original.
                 LDR     R0, =SystemInit
 				BLX     R0
 
-		; Initialize the system call table (Step 2)
+				; Initialize the system call table (Step 2)
 				LDR		R0, =_syscall_table_init
 				BLX		R0
-		; Initialize the heap space (Step 2)
+				; Initialize the heap space (Step 2)
 				LDR		R0, =_heap_init
 				BLX		R0
-		; Initialize the SysTick timer (Step 2)
+				; Initialize the SysTick timer (Step 2)
 	
-		; Store __initial_user_sp into PSP (Step 1 toward Midpoint Report)
-		; Change CPU mode into unprivileged thread mode using PSP
+				; Store __initial_user_sp into PSP (Step 1 toward Midpoint Report)
+				LDR R0, =__initial_user_sp
+				MSR PSP, R0
+				; Change CPU mode into unprivileged thread mode using PSP
+				MOVS R0, #3 ; Set SPSEL bit 1, nPriv bit 0
+				MSR CONTROL, R0 ; Now thread mode uses PSP for user
 
                 LDR     R0, =__main
                 BX      R0

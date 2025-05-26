@@ -58,21 +58,49 @@ _ralloc
 		
 		; defining half
 		MOV		R5, #2
-		UDIV 	R4, R3, R5	; int half = entire / 2;
+		UDIV 	R4, R3, R5		; int half = entire / 2;
 		
 		; defining midpoint
-		ADD		R5, R1, R4; int midpoint = left + half;
+		ADD		R5, R1, R4		; int midpoint = left + half;
 		
 		; defining heap_addr
-		MOV		R6, #0x0; int heap_addr = NULL;
+		MOV		R6, #0x0; 	int heap_addr = NULL;
 		
 		; definining act_entire_size
-		LSL		R7, R3, #4 ; int act_entire_size = entire * 16;
+		LSL		R7, R3, #4 	; int act_entire_size = entire * 16;
 		
 		; defining act_half_size
-		LSL		R8, R4, #4 ; int act_half_size = half * 16;
+		LSL		R8, R4, #4 	; int act_half_size = half * 16;
 		
 		; TODO: base case for _ralloc
+		CMP		R0, R8
+		; if size > act_half_size, go to base case(s)
+		BHI		_ralloc_base
+_ralloc_recurse_left
+		;PUSH	{LR}
+		PUSH 	{R0-R2}	; save R0 to R2 on stack
+		; recursing to left!
+		; don't change left
+		; right = midpoint
+		;void* heap_addr = _ralloc( size, left, midpoint - mcb_ent_sz );
+		SUB		R2, R5
+		BL		_ralloc
+		MOV 	R9, R0		; retrieve the pointer from recursive call
+		POP 	{R0-R2}		; retrieve R0 to R2
+		
+		; if R9 == 0x0, recurse right
+		MOV		R10, #0x0
+		CMP		R9, R10
+		BNE		_ralloc_left_good
+_ralloc_recurse_right
+		; return _ralloc( size, midpoint, right );
+		
+		
+_ralloc_left_good			; aka "left recursion worked so don't bother with base
+
+
+_ralloc_base
+		MOV		R0, #0x0	; return null
 		BX		LR
 
 
