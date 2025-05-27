@@ -104,7 +104,7 @@ _ralloc_recurse_right
 		
 		
 _ralloc_left_good			; aka "left recursion worked so don't bother with base
-		; split parent MCB
+; TODO: split parent MCB
 		
 		; return heap_addr
 		MOV		R0, R9
