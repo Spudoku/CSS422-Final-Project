@@ -47,100 +47,39 @@ _heap_init_done
 ; Kernel Memory Allocation
 ; TODO: _ralloc
 ; Parameters:
-; R0: size
 ; R1: left
 ; R2: right
+; R12: size
 
-; local variables:
-; R3: entire
-; R4: half
-; R5: midpoint
-; R6: act_entire_size
-; R7: act_half_size
-; R8: heap_addr
-; R0 through R7 are reserved, EXCEPT when returning a pointer in R0!
-; Store addresses in R8 when possible
-		
+; LOCAL VARIABLES
+;	R3: entire
+;	R4: half
+;	R5: midpoint
+;	R7: act_half_size
 _ralloc
 		PUSH	{lr}		; store link register
-		; defining entire
-		SUB		R3, R2, R1; int entire = right - left  + mcb_ent_sz;
-		LDR		R4, =MCB_ENT_SZ	
-		ADD		R3, R3, R4
+		; put entire into R3
+		SUB		R3, R2, R1
+		LDR		R4, =MCB_ENT_SZ
+		LDR		R4, [R4]			; load value of =MCB_ENT_SZ with literal pool
+		ADD		R3, R3, R4			; int entire = right - left  + mcb_ent_sz;
 		
-		; defining half
+		; compute half into R4
 		MOV		R5, #2
-		UDIV 	R4, R3, R5		; int half = entire / 2;
+		UDIV	R4, R3, R5			; int half = entire / 2;
 		
-		; defining midpoint
-		ADD		R5, R1, R4		; int midpoint = left + half;
-
-		; definining act_entire_size
-		LSL		R6, R3, #4 	; int act_entire_size = entire * 16;
+		; compute midpoint into R5
+		ADD		R5, R1, R4			; int midpoint = left + half;
 		
-		; defining act_half_size
-		LSL		R7, R4, #4 	; int act_half_size = half * 16;
-		; defining heap_addr
-		MOV		R8, #0x0; 	int heap_addr = NULL;
+		; compute act_entire_size into R6
+		LSL		R6, R3, #4
 		
-		; if size > act_half_size, go to base case(s)
-		CMP		R0, R7
+		; compute act_half_size into R7
+		LSL		R7, R4, #4			; int act_half_size = half * 16;
 		
-		BHI		_ralloc_base
-		; else recurse left
-		PUSH	{R0-R7}		; store all variables
-		; compute midpoint - mcb_ent_sz
-		LDR		R9, =MCB_ENT_SZ
-		SUB		R2, R5, R9 	;midpoint - mcb_ent_sz 
-		BL		_ralloc
-		MOV		R8, R0		; store result into R8
-		POP		{R1-R7}
-		CMP		R8, #0x0	; if heap_addr != NULL
-		BNE		_ralloc_left_good
-		; recurse right
-		; left = midpoint
-		MOV		R1, R5
-		BL		_ralloc
-		MOV		R8, R0		; store result into R8
-		B		_ralloc_return_heap_addr
-_ralloc_left_good
-		; split parent
-		B	_ralloc_return_heap_addr
-_ralloc_base	; TODO: fix base case
-		; load (array[m2a(left)]) into R9
-		SUB		R9, R1, #0x20000000		; M2A left
-		LDR		R10, =MCB_TOP			; array start
-		LDR		R9, [R10, R9]			; array[m2a[left] = array_start + m2a(left)
-		; test if memory block is used
-		; if ((array[m2a(left)] & 0x01) != 0)
-		; perform bitwise AND on R9
-		MOV		R10, R9					; save array[m2a(left)] for later
-		AND		R9, #0x01
-		CMP		R9, #0x0
-		BEQ		_ralloc_return_null
-		; here we should have an entire space
+		; 
 		
-		CMP		R9, R6 				; *(short *)&array[m2a(left)] < act_entire_size TODO: WHAT DOES THIS ACTUALLY DO
-								
-		BCS		_ralloc_return_null		; return null because its too big
-		ORR		R6, #0x01				; otherwise, set allocated bit to 1
-		; calculate return value as R8
-		LDR		R10, =MCB_TOP			; array start
-		LDR		R8, =HEAP_TOP			; heap start
-		
-		SUB		R11, R1, R10			;(left - mcb_top)
-		ADD		R8, R8, R11, LSL  #4
-		B		_ralloc_return_heap_addr ; return (void *)(heap_top + (left - mcb_top) * 16);
-			
-		;
-_ralloc_return_null
-		MOV		R0, #0x0
 		POP		{pc}
-		
-_ralloc_return_heap_addr
-		MOV		R0, R8
-		POP		{pc}		; push a link register into the program counter
-		;BX		lr
 		; END _ralloc
 
 
@@ -156,7 +95,8 @@ _kalloc
 		PUSH	{lr}
 		LDR		R1, =MCB_TOP
 		LDR		R2, =MCB_BOT
-		
+		MOV		R12, R0			; store size in R12
+		MOV		R0, #0x0		; set heap_addr to null
 		BL		_ralloc
 		POP		{lr}
 		BX		lr
