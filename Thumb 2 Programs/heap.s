@@ -56,6 +56,7 @@ _heap_init_done
 ; R4: half
 ; R5: midpoint
 ; R6: heap_addr
+; R0 through R6 are reserved, EXCEPT when returning a pointer in R0!
 		
 _ralloc
 		PUSH	{lr}		; store link register
@@ -79,20 +80,20 @@ _ralloc
 		
 		; defining act_half_size
 		LSL		R8, R4, #4 	; int act_half_size = half * 16;
-		
-		; TODO: base case for _ralloc
 		CMP		R0, R8
 		; if size > act_half_size, go to base case(s)
 		BHI		_ralloc_base
 		; else recurse left
+		PUSH	{R0-R6}		; store all variables
+		POP		{R0-R6}
 		
 		
 _ralloc_base
 		
 _ralloc_return_null
 		MOV		R0, #0x0
-		POP		{lr}
-		BX		lr
+		POP		{pc}
+		
 _ralloc_return_heap_addr
 		MOV		R0, R6
 		POP		{pc}		; push a link register into the program counter
