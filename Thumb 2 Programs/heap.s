@@ -50,6 +50,13 @@ _heap_init_done
 ; R0: size
 ; R1: left
 ; R2: right
+
+; local variables:
+; R3: entire
+; R4: half
+; R5: midpoint
+; R6: heap_addr
+		
 _ralloc
 		PUSH	{lr}		; store link register
 		; defining entire
@@ -77,45 +84,21 @@ _ralloc
 		CMP		R0, R8
 		; if size > act_half_size, go to base case(s)
 		BHI		_ralloc_base
-_ralloc_recurse_left
-		; goal: Store heap_addr into R9
-		PUSH	{R0-R3}
-		;void* heap_addr = _ralloc( size, left, midpoint - mcb_ent_sz );
-		LDR		R3, =MCB_ENT_SZ
-		SUB		R2, R5, R3 	;midpoint - mcb_ent_sz 
-		BL		_ralloc
-		MOV		R9, R0		; assigning heap_addr
-		POP		{R0-R3}	
-		
-		CMP		R9, #0
-		BEQ		_ralloc_recurse_right
-		B		_ralloc_left_good
-_ralloc_recurse_right
-		; return _ralloc( size, midpoint, right );
-		PUSH	{R0-R3}
-		MOV		R1, R5
-		BL		_ralloc
-		MOV		R9, R0
-		POP		{R0-R3}
-		
-		MOV		R0, R9
-		POP		{lr}
-		BX		lr
+		; else recurse left
 		
 		
-_ralloc_left_good			; aka "left recursion worked so don't bother with base
-; TODO: split parent MCB
-		
-		; return heap_addr
-		MOV		R0, R9
-		POP		{lr}
-		BX		lr
-
 _ralloc_base
-		MOV		R0, #0x0	; return null
+		
+_ralloc_return_null
+		MOV		R0, #0x0
 		POP		{lr}
 		BX		lr
-		; END ralloc
+_ralloc_return_heap_addr
+		MOV		R0, R6
+		POP		{pc}		; push a link register into the program counter
+		;BX		lr
+		; END _ralloc
+
 
 ; void* _k_alloc( int size )
 		EXPORT	_kalloc
@@ -126,11 +109,13 @@ _kalloc
 	; R0 = size (same as passed in parameter)
 	; R1 = MCB_TOP
 	; R2 = MCB_BOT
+		PUSH	{lr}
 		LDR		R1, =MCB_TOP
 		LDR		R2, =MCB_BOT
 		
 		BL		_ralloc
-		MOV		pc, lr
+		POP		{lr}
+		BX		lr
 		
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Kernel Memory De-allocation
