@@ -94,7 +94,7 @@ _ralloc
 		SUB		R2, R5, R9 	;midpoint - mcb_ent_sz 
 		BL		_ralloc
 		MOV		R8, R0		; store result into R8
-		POP		{R0-R7}
+		POP		{R1-R7}
 		CMP		R8, #0x0	; if heap_addr != NULL
 		BNE		_ralloc_left_good
 		; recurse right
@@ -106,7 +106,7 @@ _ralloc
 _ralloc_left_good
 		; split parent
 		B	_ralloc_return_heap_addr
-_ralloc_base
+_ralloc_base	; TODO: fix base case
 		; load (array[m2a(left)]) into R9
 		SUB		R9, R1, #0x20000000		; M2A left
 		LDR		R10, =MCB_TOP			; array start
@@ -114,11 +114,24 @@ _ralloc_base
 		; test if memory block is used
 		; if ((array[m2a(left)] & 0x01) != 0)
 		; perform bitwise AND on R9
+		MOV		R10, R9					; save array[m2a(left)] for later
 		AND		R9, #0x01
 		CMP		R9, #0x0
 		BEQ		_ralloc_return_null
 		; here we should have an entire space
 		
+		CMP		R9, R6 				; *(short *)&array[m2a(left)] < act_entire_size TODO: WHAT DOES THIS ACTUALLY DO
+								
+		BCS		_ralloc_return_null		; return null because its too big
+		ORR		R6, #0x01				; otherwise, set allocated bit to 1
+		; calculate return value as R8
+		LDR		R10, =MCB_TOP			; array start
+		LDR		R8, =HEAP_TOP			; heap start
+		
+		SUB		R11, R1, R10			;(left - mcb_top)
+		ADD		R8, R8, R11, LSL  #4
+		B		_ralloc_return_heap_addr ; return (void *)(heap_top + (left - mcb_top) * 16);
+			
 		;
 _ralloc_return_null
 		MOV		R0, #0x0
