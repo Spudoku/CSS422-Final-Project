@@ -93,7 +93,7 @@ _ralloc
 		LDR		R9, =MCB_ENT_SZ
 		SUB		R2, R5, R9 	;midpoint - mcb_ent_sz 
 		BL		_ralloc
-		MOV		R8, R0		; store result into R6
+		MOV		R8, R0		; store result into R8
 		POP		{R0-R7}
 		CMP		R8, #0x0	; if heap_addr != NULL
 		BNE		_ralloc_left_good
@@ -101,13 +101,25 @@ _ralloc
 		; left = midpoint
 		MOV		R1, R5
 		BL		_ralloc
+		MOV		R8, R0		; store result into R8
 		B		_ralloc_return_heap_addr
 _ralloc_left_good
 		; split parent
 		B	_ralloc_return_heap_addr
 _ralloc_base
-		; load (array[m2a(left)]) into R7
-		; for now just go to null
+		; load (array[m2a(left)]) into R9
+		SUB		R9, R1, #0x20000000		; M2A left
+		LDR		R10, =MCB_TOP			; array start
+		LDR		R9, [R10, R9]			; array[m2a[left] = array_start + m2a(left)
+		; test if memory block is used
+		; if ((array[m2a(left)] & 0x01) != 0)
+		; perform bitwise AND on R9
+		AND		R9, #0x01
+		CMP		R9, #0x0
+		BEQ		_ralloc_return_null
+		; here we should have an entire space
+		
+		;
 _ralloc_return_null
 		MOV		R0, #0x0
 		POP		{pc}
@@ -157,16 +169,7 @@ _kfree
 		
 		
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Helper methods
-		; TODO: m2a and a2m
-		; R0 = SRAM_ADDR
-_m2a
-		
-		BX		LR
-		; R0 = array_index (in MCB)
-_a2m
-		
-		BX		LR
+
 		END
 			
 			
