@@ -271,6 +271,7 @@ SVC_Handler     PROC 		; (Step 2)
 
 				LDMFD sp!, {r1-r12,lr}	; load registers and link register from stack
 				; Go back to stdlib.s
+				MOV		R4,	R0
 				BX 		lr					; TODO: go back to stdlib.s
                 ENDP
 DebugMon_Handler\
