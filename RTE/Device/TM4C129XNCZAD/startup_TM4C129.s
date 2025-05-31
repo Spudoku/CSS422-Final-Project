@@ -265,14 +265,14 @@ UsageFault_Handler\
 SVC_Handler     PROC 		; (Step 2)
 				EXPORT  SVC_Handler               [WEAK]
 				IMPORT	_syscall_table_jump
-				STMFD 	sp!, {R0-R12,lr}	; stores registers and link register onto stack
-				; Invoke _syscall_table_jump
-				BL 	_syscall_table_jump
-				MOV		R1, R0
-				LDMFD sp!, {R0-R12,lr}	; load registers and link register from stack
-				MOV		R0, R1
-				
-				BX 		lr					; TODO: go back to stdlib.s
+				;STMFD   sp!, {R0-R12,lr}
+				MRS     R0, MSP              ; R0 = stack frame pointer
+				LDR		R4, [R0]				; parameter
+				MOV		R0, R4					;  move back to R0 for syscall
+				BL      _syscall_table_jump    ; return value in R0
+				STR     R0, [R0]               ; overwrite saved R0 on stack
+				;LDMFD   sp!, {R0-R12,lr}       ; now R0 is restored with correct value
+				BX      lr
                 ENDP
 DebugMon_Handler\
                 PROC
