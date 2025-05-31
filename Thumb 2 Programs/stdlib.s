@@ -70,11 +70,12 @@ done
 ;   	void*	a pointer to the allocated space
 		EXPORT	_malloc
 _malloc
-		STMFD 	sp!, {r1-r12,lr}	; stores registers and link register onto stack
+		;STMFD 	sp!, {r1-r12,lr}	; stores registers and link register onto stack
 		; set the system call # to R7
 		MOV		R7, #0x4
 	    SVC     #0x0
-		LDMFD sp!, {r1-r12,lr}	; load registers and link register from stack
+		;LDMFD sp!, {r1-r12,lr}	; load registers and link register from stack
+		
 		MOV		pc, lr
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

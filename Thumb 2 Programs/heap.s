@@ -76,7 +76,7 @@ _ralloc
 		
 		; compute act_half_size into R7
 		LSL		R7, R4, #4			; int act_half_size = half * 16;
-		
+		MOV		R0, #0x23		; set heap_addr to null
 		; 
 		
 		POP		{pc}
@@ -96,7 +96,7 @@ _kalloc
 		LDR		R1, =MCB_TOP
 		LDR		R2, =MCB_BOT
 		MOV		R12, R0			; store size in R12
-		MOV		R0, #0x0		; set heap_addr to null
+		
 		BL		_ralloc
 		POP		{lr}
 		BX		lr

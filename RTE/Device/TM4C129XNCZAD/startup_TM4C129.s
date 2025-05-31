@@ -265,12 +265,13 @@ UsageFault_Handler\
 SVC_Handler     PROC 		; (Step 2)
 				EXPORT  SVC_Handler               [WEAK]
 				IMPORT	_syscall_table_jump
-				STMFD sp!, {r1-r12,lr}	; stores registers and link register onto stack
+				STMFD 	sp!, {R0-R12,lr}	; stores registers and link register onto stack
 				; Invoke _syscall_table_jump
 				BL 	_syscall_table_jump
-
-				LDMFD sp!, {r1-r12,lr}	; load registers and link register from stack
-				; Go back to stdlib.s
+				MOV		R1, R0
+				LDMFD sp!, {R0-R12,lr}	; load registers and link register from stack
+				MOV		R0, R1
+				
 				BX 		lr					; TODO: go back to stdlib.s
                 ENDP
 DebugMon_Handler\
