@@ -39,10 +39,28 @@ _timer_start
 ; Timer update
 ; void timer_update( )
 		EXPORT		_timer_update
+; R0 = STCTRL
+; R1 = STCTRL_STOP
+; R2 = SECOND_LEFT
+; R3 = USR_HANDLER
 _timer_update
-	;; Implement by yourself
-	
-		MOV		pc, lr		; return to SysTick_Handler
+		LDR 	R4, =SECOND_LEFT		; access the number of seconds at SECOND_LEFT
+		LDR 	R8, [R4]
+		SUBS 	R8, R8, #1
+		STR		R8, [R4]
+		CMP		R8, #0
+		BNE	_timer_update_done
+		; if R4 == 0, stop the timer
+		LDR 	R5, =STCTRL_STOP
+		LDR 	R6, =STCTRL
+		STR		R5, [R6]
+		; invoke user function
+		LDR		R9,=USR_HANDLER
+		LDR		R7, [R9]
+		BLX		R7
+_timer_update_done
+		MOV	pc, lr		; return to SysTick_Handler
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Timer update

@@ -93,8 +93,9 @@ _ralloc_recurse
 		BNE		_ralloc_left_good
 		; else, recurse right
 		; R1 = midpoint
+
 		MOV		R1, R9				; use saved midpoint
-		B		_ralloc
+		BL		_ralloc
 		B		_ralloc_return_heap_addr
 _ralloc_left_good
 		; split parent
@@ -142,7 +143,7 @@ _ralloc_base
 		ORR R11, R11, #0x01     			; R11 |= 1
 		STRH	R11, [R7,R10]	
 		; compute heap address and return
-		LDR     R8, =0x20001000
+		LDR     R8, =0x20001000				; heap top
 
 		SUB		R9, R1, R7					; left - mcb_top
 		LSL		R9, R9, #4
