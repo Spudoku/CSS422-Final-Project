@@ -23,21 +23,21 @@ SRAM_START	EQU		0x20000000	; start of SRAM
 _heap_init
 		; mark the entire heap as a single unallocated block of memory
 		; MCB[mcb_top - SRAM_START] = MAX_SIZE
-		LDR R1, =MCB_TOP
+		LDR 	R1, =MCB_TOP
 		
-		LDR R2, =MCB_BOT
-		LDR	R3, =MAX_SIZE
-		STR	R3, [R1]
-		ADD	R1, R1, #4
+		LDR 	R2, =MCB_BOT
+		LDR		R3, =MAX_SIZE
+		STRH	R3, [R1]
+		ADD		R1, R1, #2
 		; zero out the MCB array
-		MOV	R4, #0x00
+		MOV		R4, #0x00
 _heap_init_loop
-		CMP	R1, R2
-		BCS	_heap_init_done		; if R1 >= R2
-		STR	R4, [R1]
+		CMP		R1, R2
+		BCS		_heap_init_done		; if R1 >= R2
+		STRH	R4, [R1]
 		;STR R4, [R1, #1]
-		ADD	R1, R1, #2			; R1 += 2
-		B	_heap_init_loop
+		ADD		R1, R1, #2			; R1 += 2
+		B		_heap_init_loop
 _heap_init_done
 		MOV		pc, lr
 		
