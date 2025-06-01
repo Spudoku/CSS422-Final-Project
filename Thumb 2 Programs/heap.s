@@ -96,6 +96,18 @@ _ralloc_recurse
 		B		_ralloc_return_heap_addr
 _ralloc_left_good
 		; split parent
+		; TODO: calculate m2a midpoint
+		;if ((array[m2a(midpoint)] & 0x01) == 0)
+		;	*(short *)&array[m2a(midpoint)] = act_half_size;
+		LDR		R7, =MCB_TOP
+		SUB		R10, R5, R7					; m2a(midpoint) = midpoint - mcb_top
+		LDRH	R11, [R7,R10]				; array[m2a[midpoint] = array_start + m2a(midpoint)
+		AND		R11, R11, #0x01
+		CMP		R11, #0
+		BNE		_ralloc_return_heap_addr	
+		;		*(short *)&array[m2a(midpoint)] = act_half_size;
+		MOV		R11, R6
+		STRH	R11, [R7, R10]
 		B		_ralloc_return_heap_addr	
 _ralloc_base
 		; check if left works
@@ -104,8 +116,9 @@ _ralloc_base
 		; values to keep (until heap address is calculated): m2a(left), array[m2a(left)]
 		; keep in R10 and R11 respectively
 		; R7-9 are disposable values
-		SUB		R10, R1, #0x20000000		; m2a(left)
+		
 		LDR		R7, =MCB_TOP
+		SUB		R10, R1, R7					; m2a(left) = left - mcb_top
 		LDRH	R11, [R7,R10]				; array[m2a[left] = array_start + m2a(left)
 		
 		MOV		R8, R11						; save copy of R11 for comparisons				; TODO: why is R8 0?
