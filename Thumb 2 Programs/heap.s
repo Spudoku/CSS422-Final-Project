@@ -90,13 +90,19 @@ _ralloc_recurse
 		POP		{R0-R7}
 		
 		CMP		R8, #0x0
-		BNE		_ralloc_left_good
-		; else, recurse right
-		; R1 = midpoint
-
+		BEQ		_ralloc_try_right	; left failed, recurse right
+		
+		; left succeeded
+		;MOV		R0, R8				; 
+		B       _ralloc_left_good
+		
+_ralloc_try_right
 		MOV		R1, R9				; use saved midpoint
 		BL		_ralloc
-		B		_ralloc_return_heap_addr
+		CMP		R0, #0
+		BEQ		_ralloc_return_null	; both left and right failed
+		
+		B		_ralloc_return_heap_addr	; right succeeded
 _ralloc_left_good
 		; split parent
 		; TODO: calculate m2a midpoint
