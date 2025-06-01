@@ -51,7 +51,7 @@ _syscall_table_init
         EXPORT	_syscall_table_jump
 _syscall_table_jump
 	;; Implement by yourself
-		MOV 	R0, #0x23
+		;MOV 	R0, #0x23
 		;BX 		lr
 		LSL 	R7, R7, #2		; multiply R7 (SVC call #) by 4
 		LDR 	R8, =SYSTEMCALLTBL	; load system call table
