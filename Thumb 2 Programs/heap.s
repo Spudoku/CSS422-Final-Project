@@ -81,17 +81,19 @@ _ralloc
 
 		B		_ralloc_base		; else: base case
 _ralloc_recurse
+		MOV		R9, R5				; save midpoint
 		PUSH	{R0-R7}
 		SUB		R2, R5, R11			; new right = midpoint - mcb_ent_size
 		BL		_ralloc
 		MOV		R8, R0
+		;MOV		
 		POP		{R0-R7}
 		
 		CMP		R8, #0x0
 		BNE		_ralloc_left_good
 		; else, recurse right
 		; R1 = midpoint
-		MOV		R1, R5
+		MOV		R1, R9				; use saved midpoint
 		B		_ralloc
 		B		_ralloc_return_heap_addr
 _ralloc_left_good
@@ -118,7 +120,10 @@ _ralloc_base
 		; R7-9 are disposable values
 		
 		LDR		R7, =MCB_TOP
-		SUB		R10, R1, R7					; m2a(left) = left - mcb_top
+		;SUB		R10, R1, R7					; m2a(left) = left - mcb_top
+		SUB     R10, R1, R7     ; index = left - mcb_top
+		LSL     R10, R10, #1    ; m2a(left): offset = index * 2
+		;LDRH    R11, [R7, R10]  ; read array[m2a[left]]
 		LDRH	R11, [R7,R10]				; array[m2a[left] = array_start + m2a(left)
 		
 		MOV		R8, R11						; save copy of R11 for comparisons				; TODO: why is R8 0?
@@ -130,13 +135,15 @@ _ralloc_base
 		MOV     R8, R11
 		LDR		R9, =0xFFFE		
 		AND     R8, R11, R9       ; Strip allocation bit
+
 		CMP     R8, R6
 		BCC		_ralloc_return_null
 		; otherwise, allocate block 
 		ORR R11, R11, #0x01     			; R11 |= 1
 		STRH	R11, [R7,R10]	
 		; compute heap address and return
-		LDR		R8, =HEAP_TOP
+		LDR     R8, =0x20001000
+
 		SUB		R9, R1, R7					; left - mcb_top
 		LSL		R9, R9, #4
 		ADD		R8, R8, R9
