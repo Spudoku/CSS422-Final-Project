@@ -68,7 +68,8 @@ _ralloc
 		SUB		R3, R2, R1			; right - left
 		ADD		R3, R3, R11			; right - left + mcb_ent_size
 		; Calculate half into R4
-		UDIV	R4, R3, #2			; half = entire / 2
+		MOV		R10, #2
+		UDIV	R4, R3, R10			; half = entire / 2
 		; calculate midpoint into R5
 		ADD		R5, R1, R4				; midpoint = left + half
 		; calculate act_entire_size into R6
@@ -99,16 +100,35 @@ _ralloc_left_good
 _ralloc_base
 		; check if left works
 		; load (array[m2a(left)]) into R9
-		SUB		R9, R1, #0x20000000		; M2A left
-		LDR		R10, =MCB_TOP			; array start
-		LDR		R9, [R10, R9]			; array[m2a[left] = array_start + m2a(left)
-		; test if memory block is used
-		; if ((array[m2a(left)] & 0x01) != 0)
-		; perform bitwise AND on R9
-		MOV		R10, R9					; save array[m2a(left)] for later
-		AND		R9, #0x01
-		CMP		R9, #0x0				; check MCB entry
-		BNE		_ralloc_return_null		
+		; registers I CAN use: R7, R8 (MUST be overridden at the end) R9, R10, R11
+		; values to keep (until heap address is calculated): m2a(left), array[m2a(left)]
+		; keep in R10 and R11 respectively
+		; R7-9 are disposable values
+		SUB		R10, R1, #0x20000000		; m2a(left)
+		LDR		R7, =MCB_TOP
+		LDRH	R11, [R7,R10]				; array[m2a[left] = array_start + m2a(left)
+		
+		MOV		R8, R11						; save copy of R11 for comparisons				; TODO: why is R8 0?
+		AND		R8, #0x01					; check MCB entry for allocation
+		CMP		R8, #0x0
+		BNE		_ralloc_return_null
+		; otherwise, we have the entire space
+		; if *(short *)&array[m2a(left)] < act_entire_size, return null
+		MOV     R8, R11
+		LDR		R9, =0xFFFE		
+		AND     R8, R11, R9       ; Strip allocation bit
+		CMP     R8, R6
+		BCC		_ralloc_return_null
+		; otherwise, allocate block 
+		ORR R11, R11, #0x01     			; R11 |= 1
+		STRH	R11, [R7,R10]	
+		; compute heap address and return
+		LDR		R8, =HEAP_TOP
+		SUB		R9, R1, R7					; left - mcb_top
+		LSL		R9, R9, #4
+		ADD		R8, R8, R9
+		
+		B		_ralloc_return_heap_addr
 _ralloc_return_null
 		MOV     R0, #0
 		POP     {pc}
