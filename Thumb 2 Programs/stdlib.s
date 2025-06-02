@@ -74,8 +74,8 @@ _malloc
 		; set the system call # to R7
 		MOV		R7, #0x4
 	    SVC     #0x0
-		MOV	R0, R4
 		;LDMFD sp!, {r1-r12,lr}	; load registers and link register from stack
+		
 		MOV		pc, lr
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
