@@ -1,9 +1,10 @@
 <html>
+
 <body>
-<pre>
-<h1>µVision Build Log</h1>
+   <pre>
+<h1>ï¿½Vision Build Log</h1>
 <h2>Tool Versions:</h2>
-IDE-Version: µVision V5.42.0.0
+IDE-Version: ï¿½Vision V5.42.0.0
 Copyright (C) 2025 ARM Ltd and ARM Germany GmbH. All rights reserved.
 License Information: Caleb Short, University of Washington Bothell, LIC=----
  
@@ -37,23 +38,20 @@ C Programs/driver_keil.c(17): warning: unused parameter 'signum' [-Wunused-param
       |                        ^
 2 warnings generated.
 compiling driver_keil.c...
-assembling stdlib.s...
-assembling startup_TM4C129.s...
+assembling timer.s...
 compiling system_TM4C129.c...
-"Thumb 2 Programs/svc.s", line 62: Warning: A1581W: Added 2 bytes of padding at address 0x42
-   62 00000044   END
+assembling startup_TM4C129.s...
+assembling stdlib.s...
+"Thumb 2 Programs/svc.s", line 61: Warning: A1581W: Added 2 bytes of padding at address 0x42
+   61 00000044   END
 0 Errors, 1 Warning
 assembling svc.s...
-"Thumb 2 Programs/heap.s", line 210: Warning: A1581W: Added 2 bytes of padding at address 0xea
-  210 000000ec   END
+"Thumb 2 Programs/heap.s", line 126: Warning: A1581W: Added 2 bytes of padding at address 0x5e
+  126 00000060   END
 0 Errors, 1 Warning
 assembling heap.s...
-"Thumb 2 Programs/timer.s", line 74: Warning: A1581W: Added 2 bytes of padding at address 0x2e
-   74 00000030   END  
-0 Errors, 1 Warning
-assembling timer.s...
 linking...
-Program Size: Code=1624 RO-data=544 RW-data=4 ZI-data=24680  
+Program Size: Code=1708 RO-data=584 RW-data=4 ZI-data=24680  
 ".\Objects\Final Project.axf" - 0 Error(s), 2 Warning(s).
 
 <h2>Software Packages used:</h2>
@@ -83,7 +81,8 @@ Package Vendor: Keil
       Source file:   Device/Source/system_TM4C129.c
       Include file:  Device/Include/TM4C129/TM4C129.h
       Source file:   Device/Source/ARM/startup_TM4C129.s
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:00
 </pre>
 </body>
+
 </html>
