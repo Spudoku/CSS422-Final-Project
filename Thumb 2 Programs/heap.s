@@ -146,13 +146,14 @@ _ralloc_base
 		CMP     R8, R6
 		BCC		_ralloc_return_null
 		; otherwise, allocate block 
-		ORR R11, R11, #0x01     			; R11 |= 1
+		ORR 	R11, R11, #0x01     			; R11 |= 1
 		STRH	R11, [R7,R10]	
 		; compute heap address and return
 		LDR     R8, =0x20001000				; heap top
 
 		SUB		R9, R1, R7					; left - mcb_top
-		LSL		R9, R9, #4
+		LSL		R9, R9, #3					; offset = ((MCB_addr - MCB_TOP) / 2) * 16
+		;LSR		R9, R9, #1					; index = offset / 2
 		ADD		R8, R8, R9
 		
 		B		_ralloc_return_heap_addr
