@@ -125,38 +125,21 @@ _ralloc_base
 		; values to keep (until heap address is calculated): m2a(left), array[m2a(left)]
 		; keep in R10 and R11 respectively
 		; R7-9 are disposable values
-		
+		;R1
+		;int m2a(int sram_addr)
+;{
+  ;int index = sram_addr - 0x20000000;
+  ;// printf( "m2a: sram_addr = %x array_index = %d\n", sram_addr, index );
+  ;return index;
+;}
+		;(array[m2a(left)] & 0x01) != 0, return null
+		; calculate offset, aka m2a(left)
+		; TODO: factor in the fact that R1 and R2 are MCB entries!
 		LDR		R7, =MCB_TOP
-		;SUB		R10, R1, R7					; m2a(left) = left - mcb_top
-		SUB     R10, R1, R7     ; index = left - mcb_top
-		LSL     R10, R10, #1    ; m2a(left): offset = index * 2
-		;LDRH    R11, [R7, R10]  ; read array[m2a[left]]
-		LDRH	R11, [R7,R10]				; array[m2a[left] = array_start + m2a(left)
+		SUB		R7, R1, R7 
 		
-		MOV		R8, R11						; save copy of R11 for comparisons				; TODO: why is R8 0?
-		AND		R8, #0x01					; check MCB entry for allocation
-		CMP		R8, #0x0
-		BNE		_ralloc_return_null
-		; otherwise, we have the entire space
-		; if *(short *)&array[m2a(left)] < act_entire_size, return null
-		MOV     R8, R11
-		LDR		R9, =0xFFFE		
-		AND     R8, R11, R9       ; Strip allocation bit
-
-		CMP     R8, R6
-		BCC		_ralloc_return_null
-		; otherwise, allocate block 
-		ORR 	R11, R11, #0x01     			; R11 |= 1
-		STRH	R11, [R7,R10]	
-		; compute heap address and return
-		LDR     R8, =0x20001000				; heap top
-
-		SUB		R9, R1, R7					; left - mcb_top
-		LSL		R9, R9, #3					; offset = ((MCB_addr - MCB_TOP) / 2) * 16
-		;LSR		R9, R9, #1					; index = offset / 2
-		ADD		R8, R8, R9
 		
-		B		_ralloc_return_heap_addr
+		
 _ralloc_return_null
 		MOV     R0, #0
 		POP     {pc}
