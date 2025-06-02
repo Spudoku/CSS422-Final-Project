@@ -47,39 +47,124 @@ _heap_init_done
 ; Kernel Memory Allocation
 ; TODO: _ralloc
 ; Parameters:
+; R12: size
 ; R1: left
 ; R2: right
-; R12: size
 
-; LOCAL VARIABLES
+; local variables:
 ;	R3: entire
 ;	R4: half
 ;	R5: midpoint
-;	R7: act_half_size
+;	R6: act_entire_size
+; 	R7: act_half_size
+;	R8: heap_addr
+; Store addresses in R0 when possible
+		
 _ralloc
 		PUSH	{lr}		; store link register
-		; put entire into R3
-		SUB		R3, R2, R1
-		LDR		R4, =MCB_ENT_SZ
-		LDR		R4, [R4]			; load value of =MCB_ENT_SZ with literal pool
-		ADD		R3, R3, R4			; int entire = right - left  + mcb_ent_sz;
+		MOV		R8, #0x0			; heap_addr = null
+		LDR		R11, =MCB_ENT_SZ	; loading mcb_ent_sz
+		; Calculate entire into R3
+		SUB		R3, R2, R1			; right - left
+		ADD		R3, R3, R11			; right - left + mcb_ent_size
+		; Calculate half into R4
+		MOV		R10, #2
+		UDIV	R4, R3, R10			; half = entire / 2
+		; calculate midpoint into R5
+		ADD		R5, R1, R4				; midpoint = left + half
+		; calculate act_entire_size into R6
+		LSL		R6, R3, #4			; act_entire_size = entire * 16
+		; calculate act_half_size into R7
+		LSL		R7, R4, #4			; act_half_size = half * 16
+		CMP		R12, R7				; compare size, act_half_size
+		BLS		_ralloc_recurse		; if size <= act_half_size, recursive case
+
+		B		_ralloc_base		; else: base case
+_ralloc_recurse
+		MOV		R9, R5				; save midpoint
+		PUSH	{R0-R7}
+		SUB		R2, R5, R11			; new right = midpoint - mcb_ent_size
+		BL		_ralloc
+		MOV		R8, R0
+		;MOV		
+		POP		{R0-R7}
 		
-		; compute half into R4
-		MOV		R5, #2
-		UDIV	R4, R3, R5			; int half = entire / 2;
+		CMP		R8, #0x0
+		BEQ		_ralloc_try_right	; left failed, recurse right
 		
-		; compute midpoint into R5
-		ADD		R5, R1, R4			; int midpoint = left + half;
+		; left succeeded
+		;MOV		R0, R8				; 
+		B       _ralloc_left_good
 		
-		; compute act_entire_size into R6
-		LSL		R6, R3, #4
+_ralloc_try_right
+		MOV		R1, R9				; use saved midpoint
+		BL		_ralloc
+		CMP		R0, #0
+		BEQ		_ralloc_return_null	; both left and right failed
 		
-		; compute act_half_size into R7
-		LSL		R7, R4, #4			; int act_half_size = half * 16;
-		MOV		R0, #0x23		; set heap_addr to null
-		; 
+		B		_ralloc_return_heap_addr	; right succeeded
+_ralloc_left_good
+		; split parent
+		; TODO: calculate m2a midpoint
+		;if ((array[m2a(midpoint)] & 0x01) == 0)
+		;	*(short *)&array[m2a(midpoint)] = act_half_size;
+		LDR		R7, =MCB_TOP
+		SUB		R10, R5, R7					; m2a(midpoint) = midpoint - mcb_top
+		LDRH	R11, [R7,R10]				; array[m2a[midpoint] = array_start + m2a(midpoint)
+		AND		R11, R11, #0x01
+		CMP		R11, #0
+		BNE		_ralloc_return_heap_addr	
+		;		*(short *)&array[m2a(midpoint)] = act_half_size;
+		MOV		R11, R6
+		STRH	R11, [R7, R10]
+		B		_ralloc_return_heap_addr	
+_ralloc_base
+		; check if left works
+		; load (array[m2a(left)]) into R9
+		; registers I CAN use: R7, R8 (MUST be overridden at the end) R9, R10, R11
+		; values to keep (until heap address is calculated): m2a(left), array[m2a(left)]
+		; keep in R10 and R11 respectively
+		; R7-9 are disposable values
 		
-		POP		{pc}
+		LDR		R7, =MCB_TOP
+		;SUB		R10, R1, R7					; m2a(left) = left - mcb_top
+		SUB     R10, R1, R7     ; index = left - mcb_top
+		LSL     R10, R10, #1    ; m2a(left): offset = index * 2
+		;LDRH    R11, [R7, R10]  ; read array[m2a[left]]
+		LDRH	R11, [R7,R10]				; array[m2a[left] = array_start + m2a(left)
+		
+		MOV		R8, R11						; save copy of R11 for comparisons				; TODO: why is R8 0?
+		AND		R8, #0x01					; check MCB entry for allocation
+		CMP		R8, #0x0
+		BNE		_ralloc_return_null
+		; otherwise, we have the entire space
+		; if *(short *)&array[m2a(left)] < act_entire_size, return null
+		MOV     R8, R11
+		LDR		R9, =0xFFFE		
+		AND     R8, R11, R9       ; Strip allocation bit
+
+		CMP     R8, R6
+		BCC		_ralloc_return_null
+		; otherwise, allocate block 
+		ORR 	R11, R11, #0x01     			; R11 |= 1
+		STRH	R11, [R7,R10]	
+		; compute heap address and return
+		LDR     R8, =0x20001000				; heap top
+
+		SUB		R9, R1, R7					; left - mcb_top
+		LSL		R9, R9, #3					; offset = ((MCB_addr - MCB_TOP) / 2) * 16
+		;LSR		R9, R9, #1					; index = offset / 2
+		ADD		R8, R8, R9
+		
+		B		_ralloc_return_heap_addr
+_ralloc_return_null
+		MOV     R0, #0
+		POP     {pc}
+
+_ralloc_return_heap_addr
+		MOV     R0, R8
+		POP     {pc}
+
 		; END _ralloc
 
 
@@ -95,8 +180,7 @@ _kalloc
 		PUSH	{lr}
 		LDR		R1, =MCB_TOP
 		LDR		R2, =MCB_BOT
-		MOV		R12, R0			; store size in R12
-		
+		MOV		R12, R0
 		BL		_ralloc
 		POP		{lr}
 		BX		lr

@@ -205,32 +205,20 @@ __Vectors_Size  EQU     __Vectors_End - __Vectors
 Reset_Handler   PROC
                 EXPORT  Reset_Handler             [WEAK]
                 IMPORT  SystemInit
-				IMPORT  __main
-				IMPORT	_syscall_table_init
-				IMPORT	_heap_init
+        	IMPORT  __main
 	
-				; Store __initial_sp into MSP (Step 1 toward Midpoint Report)
-				LDR R0, =__initial_sp ; thread mode uses MSP
-				MSR MSP, R0
-				;MOV		sp, R0
-				ISB     ; Let's leave as is from the original.
-                LDR     R0, =SystemInit
-				BLX     R0
+		; Store __initial_sp into MSP (Step 1 toward Midpoint Report)
 
-				; Initialize the system call table (Step 2)
-				LDR		R0, =_syscall_table_init
-				BLX		R0
-				; Initialize the heap space (Step 2)
-				LDR		R0, =_heap_init
-				BLX		R0
-				; Initialize the SysTick timer (Step 2)
+		ISB     ; Let's leave as is from the original.
+                LDR     R0, =SystemInit
+        	BLX     R0
+
+		; Initialize the system call table (Step 2)
+		; Initialize the heap space (Step 2)
+		; Initialize the SysTick timer (Step 2)
 	
-				; Store __initial_user_sp into PSP (Step 1 toward Midpoint Report)
-				LDR R0, =__initial_user_sp
-				MSR PSP, R0
-				; Change CPU mode into unprivileged thread mode using PSP
-				MOVS R0, #3 ; Set SPSEL bit 1, nPriv bit 0
-				MSR CONTROL, R0 ; Now thread mode uses PSP for user
+		; Store __initial_user_sp into PSP (Step 1 toward Midpoint Report)
+		; Change CPU mode into unprivileged thread mode using PSP
 
                 LDR     R0, =__main
                 BX      R0
@@ -263,16 +251,12 @@ UsageFault_Handler\
                 B       .
                 ENDP
 SVC_Handler     PROC 		; (Step 2)
-				EXPORT  SVC_Handler               [WEAK]
-				IMPORT	_syscall_table_jump
-				;STMFD   sp!, {R0-R12,lr}
-				MRS     R0, MSP              ; R0 = stack frame pointer
-				LDR		R4, [R0]				; parameter
-				MOV		R0, R4					;  move back to R0 for syscall
-				BL      _syscall_table_jump    ; return value in R0
-				STR     R0, [R0]               ; overwrite saved R0 on stack
-				;LDMFD   sp!, {R0-R12,lr}       ; now R0 is restored with correct value
-				BX      lr
+        	EXPORT  SVC_Handler               [WEAK]
+		; Save registers 
+		; Invoke _syscall_table_ump
+		; Retrieve registers
+		; Go back to stdlib.s
+                B       .
                 ENDP
 DebugMon_Handler\
                 PROC
@@ -286,12 +270,13 @@ PendSV_Handler\
                 ENDP
 SysTick_Handler\
                 PROC		; (Step 2)
-				EXPORT  SysTick_Handler           [WEAK]
-				STMFD sp!, {r1-r12,lr}	; stores registers and link register onto stack
-				; TODO: Invoke _timer_update
-				LDMFD sp!, {r1-r12,lr}	; load registers and link register from stack
-				; TODO: Change from MSP to PSP 
-                BX		lr			; should go back to link register?
+        	EXPORT  SysTick_Handler           [WEAK]
+		; Save registers
+		; Invoke _timer_update
+		; Retrieve registers
+		; Change from MSP to PSP
+		; Go back to the user program
+                B       .
                 ENDP
 
 GPIOA_Handler\
