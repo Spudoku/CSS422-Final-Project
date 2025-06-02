@@ -29,11 +29,6 @@ Project File Date:  05/13/2025
 Rebuild target 'Target_1'
 Note: source file 'RTE/Device/TM4C129XNCZAD/startup_TM4C129.s' - object file renamed from '.\Objects\startup_TM4C129.o' to '.\Objects\startup_tm4c129_1.o'.
 Note: source file 'RTE/Device/TM4C129XNCZAD/startup_TM4C129.s' - object file renamed from '.\Objects\startup_TM4C129.o' to '.\Objects\startup_tm4c129_1.o'.
-compiling system_TM4C129.c...
-"Thumb 2 Programs/heap.s", line 210: Warning: A1581W: Added 2 bytes of padding at address 0xea
-  210 000000ec   END
-0 Errors, 1 Warning
-assembling heap.s...
 C Programs/driver_keil.c(13): warning: unused parameter 'signum' [-Wunused-parameter]
    13 | void sig_handler1( int signum ) {
       |                        ^
@@ -42,15 +37,20 @@ C Programs/driver_keil.c(17): warning: unused parameter 'signum' [-Wunused-param
       |                        ^
 2 warnings generated.
 compiling driver_keil.c...
-"Thumb 2 Programs/svc.s", line 62: Warning: A1581W: Added 2 bytes of padding at address 0x46
-   62 00000048   END
-0 Errors, 1 Warning
-assembling svc.s...
+compiling system_TM4C129.c...
 assembling stdlib.s...
+"Thumb 2 Programs/heap.s", line 210: Warning: A1581W: Added 2 bytes of padding at address 0xea
+  210 000000ec   END
+0 Errors, 1 Warning
+assembling heap.s...
 "Thumb 2 Programs/timer.s", line 74: Warning: A1581W: Added 2 bytes of padding at address 0x2e
    74 00000030   END  
 0 Errors, 1 Warning
 assembling timer.s...
+"Thumb 2 Programs/svc.s", line 62: Warning: A1581W: Added 2 bytes of padding at address 0x46
+   62 00000048   END
+0 Errors, 1 Warning
+assembling svc.s...
 assembling startup_TM4C129.s...
 linking...
 Program Size: Code=1628 RO-data=544 RW-data=4 ZI-data=24680  
@@ -83,7 +83,7 @@ Package Vendor: Keil
       Include file:  Device/Include/TM4C129/TM4C129.h
       Source file:   Device/Source/system_TM4C129.c
       Source file:   Device/Source/ARM/startup_TM4C129.s
-Build Time Elapsed:  00:00:00
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>
