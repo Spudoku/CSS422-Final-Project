@@ -109,15 +109,17 @@ _ralloc_left_good
 		;if ((array[m2a(midpoint)] & 0x01) == 0)
 		;	*(short *)&array[m2a(midpoint)] = act_half_size;
 
-		;LDR			R11, =MCB_TOP
-		;ADD			R11, R11, R11
-		;SUB			R11, R11, R5		; MCB_TOP + MCB_TOP - midpoint (array entry location)
-		;LDRH		R9, [R11] 			; load MCB entry into R9
-		;MOV			R10, R9			; copy of arrray[m2a(midpoint)]
+		LDR			R11, =MCB_TOP
+		ADD			R11, R11, R11
+		SUB			R11, R11, R5		; MCB_TOP + MCB_TOP - midpoint (array entry location)
+		LDRH		R9, [R11] 			; load MCB entry into R9
+		MOV			R10, R9			; copy of arrray[m2a(midpoint)]
 
-		;AND			R10, R10, #0x01		; ; check allocation bit
-		;CMP			R10, #0
-		;BNE			_ralloc_return_heap_addr	
+		AND			R10, R10, #0x01		; ; check allocation bit
+		CMP			R10, #0
+		BNE			_ralloc_return_heap_addr	
+		
+		
 		
 		; if allocation bit == 0
 		; store ; 	R7: act_half_size
@@ -140,7 +142,8 @@ _ralloc_base
 ;}
 		;(array[m2a(left)] & 0x01) != 0, return null
 		; calculate offset, aka m2a(left)
-		; TODO: factor in the fact that R1 and R2 are MCB entries!
+		; TODO: change how array indices are calculated!
+		; TODO: try calculating array[m2a(left)] as MCB_TOP + left-0x20000000
 		LDR		R7, =MCB_TOP
 		SUB		R7, R1, R7 
 		LDR		R8, =MCB_TOP
@@ -167,6 +170,7 @@ _ralloc_base
 		LDR		R7, =MCB_TOP		
 		LDR		R8, =HEAP_TOP
 		SUB		R7, R1, R7					; left - mcb_top
+
 		LSL		R7, R7, #4					; multiply by 16
 		ADD		R8, R8, R7
 		B		_ralloc_return_heap_addr
@@ -225,6 +229,7 @@ _kfree
 		
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+	
 		END
 			
 			

@@ -190,7 +190,7 @@
         <Bp>
           <Number>3</Number>
           <Type>0</Type>
-          <LineNumber>127</LineNumber>
+          <LineNumber>129</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -220,7 +220,7 @@
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>0x200067C0</ItemText>
+          <ItemText>0x200067B0</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
