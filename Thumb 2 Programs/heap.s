@@ -108,16 +108,22 @@ _ralloc_left_good
 		; TODO: Fix this!!!!!!!!!!
 		;if ((array[m2a(midpoint)] & 0x01) == 0)
 		;	*(short *)&array[m2a(midpoint)] = act_half_size;
-		LDR		R7, =MCB_TOP
-		SUB		R10, R5, R7					; m2a(midpoint) = midpoint - mcb_top
-		LDRH	R11, [R7,R10]				; array[m2a[midpoint] = array_start + m2a(midpoint)
-		AND		R11, R11, #0x01
-		CMP		R11, #0
-		BNE		_ralloc_return_heap_addr	
-		;		*(short *)&array[m2a(midpoint)] = act_half_size;
-		MOV		R11, R6
-		STRH	R11, [R7, R10]
-		B		_ralloc_return_heap_addr	
+
+		;LDR			R11, =MCB_TOP
+		;ADD			R11, R11, R11
+		;SUB			R11, R11, R5		; MCB_TOP + MCB_TOP - midpoint (array entry location)
+		;LDRH		R9, [R11] 			; load MCB entry into R9
+		;MOV			R10, R9			; copy of arrray[m2a(midpoint)]
+
+		;AND			R10, R10, #0x01		; ; check allocation bit
+		;CMP			R10, #0
+		;BNE			_ralloc_return_heap_addr	
+		
+		; if allocation bit == 0
+		; store ; 	R7: act_half_size
+		STRH		R7, [R11]
+		
+		B			_ralloc_return_heap_addr	
 _ralloc_base
 		; check if left works
 		; load (array[m2a(left)]) into R9
@@ -154,7 +160,7 @@ _ralloc_base
 		BCC		_ralloc_return_null
 		
 		; otherwise, allocate block (the halfword loaded in R9)
-		ORR		R9, #0x01			; set last bit to 1
+		ORR		R9, R9, #0x01			; set last bit to 1
 		STRH	R9, [R8]
 		
 		; compute heap address and return
