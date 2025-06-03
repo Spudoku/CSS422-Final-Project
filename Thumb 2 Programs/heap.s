@@ -105,7 +105,7 @@ _ralloc_try_right
 		B		_ralloc_return_heap_addr	; right succeeded
 _ralloc_left_good
 		; split parent
-		; TODO: calculate m2a midpoint
+		; TODO: Fix this!!!!!!!!!!
 		;if ((array[m2a(midpoint)] & 0x01) == 0)
 		;	*(short *)&array[m2a(midpoint)] = act_half_size;
 		LDR		R7, =MCB_TOP
@@ -137,13 +137,42 @@ _ralloc_base
 		; TODO: factor in the fact that R1 and R2 are MCB entries!
 		LDR		R7, =MCB_TOP
 		SUB		R7, R1, R7 
+		LDR		R8, =MCB_TOP
+		ADD		R8, R7			; offset = MCB_TOP + (MCB_TOP - left)
+		LDRH	R9, [R8]		; load half word into R9 (array entry)
+		MOV		R10, R9			; save copy of array entry
+		AND		R10, #0x01
+		CMP		R10, #0x0		; if allocated, then return null
+		BNE		_ralloc_return_null
+		; we have entire space
+		; if *(short *)&array[m2a(left)] < act_entire_size, return null
+		MOV		R10, R9
+		LDR		R11, =0xFFFE		; strip allocation bit
+		AND		R11, R10, R11
+		
+		CMP		R11, R6				; R6 = act_entire_size
+		BCC		_ralloc_return_null
+		
+		; otherwise, allocate block (the halfword loaded in R9)
+		ORR		R9, #0x01			; set last bit to 1
+		STRH	R9, [R8]
+		
+		; compute heap address and return
+		LDR		R7, =MCB_TOP		
+		LDR		R8, =HEAP_TOP
+		SUB		R7, R1, R7					; left - mcb_top
+		LSL		R7, R7, #4					; multiply by 16
+		ADD		R8, R8, R7
+		B		_ralloc_return_heap_addr
 		
 		
 		
+;		return 0 (NULL)
 _ralloc_return_null
 		MOV     R0, #0
 		POP     {pc}
 
+;		return whatever's in R8
 _ralloc_return_heap_addr
 		MOV     R0, R8
 		POP     {pc}
