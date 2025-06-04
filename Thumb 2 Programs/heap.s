@@ -81,7 +81,7 @@ _ralloc
 
 		B		_ralloc_base		; else: base case
 _ralloc_recurse
-		MOV		R9, R5				; save midpoint
+		;MOV		R9, R5				; save midpoint
 		PUSH	{R0-R7}
 		SUB		R2, R5, R11			; new right = midpoint - mcb_ent_size
 		BL		_ralloc
@@ -97,7 +97,7 @@ _ralloc_recurse
 		B       _ralloc_left_good
 		
 _ralloc_try_right
-		MOV		R1, R9				; use saved midpoint
+		MOV		R1, R5				; use saved midpoint
 		BL		_ralloc
 		CMP		R0, #0
 		BEQ		_ralloc_return_null	; both left and right failed
@@ -109,9 +109,10 @@ _ralloc_left_good
 		;if ((array[m2a(midpoint)] & 0x01) == 0)
 		;	*(short *)&array[m2a(midpoint)] = act_half_size;
 
-		LDR			R11, =MCB_TOP
-		ADD			R11, R11, R11
-		SUB			R11, R11, R5		; MCB_TOP + MCB_TOP - midpoint (array entry location)
+		LDR			R6, =MCB_TOP
+
+		SUB			R11, R5, R6 		; MCB_TOP + midpoint - MCB_TOP(array entry location)
+		ADD			R11, R11, R6
 		LDRH		R9, [R11] 			; load MCB entry into R9
 		MOV			R10, R9			; copy of arrray[m2a(midpoint)]
 
@@ -212,21 +213,57 @@ _kalloc
 ; TODO: _rfree
 ; 
 _rfree
+		PUSH	{lr}
+		; validate ptr
+
 		
-		MOV		pc, lr
+		
+		
+		
+		POP		{pc}
+
+		
+
 
 ; void free( void *ptr )
 		EXPORT	_kfree
 _kfree
-	;; Implement by yourself
-	; validate address
-	
-	; compute MCB address
-	
-	; invoke _rfree
-		MOV		pc, lr					; return from rfree( )
+	PUSH	{lr}
+		; validate ptr
+		; shouldn't need to convert
+		LDR		R1, =HEAP_TOP
+		LDR		R2, =HEAP_BOT
 		
+		CMP		R0, R1			; if ptr < HEAP_TOP
+		BCC		_kfree_return_null
+		CMP		R0, R2			; if ptr > HEAP_BOT
+		BHI		_kfree_return_null
 		
+		; 		otherwise, pointer is valid
+		PUSH	{R0}			; store pointer for later
+		SUB		R0, R0, R1		; R0 = addr - HEAP_TOP
+		LDR		R3, =MCB_TOP
+		MOV		R4, #16
+		UDIV	R0, R0, R4		; (addr - HEAP_TOP) / 16
+		ADD		R0, R0, R3		; MCB_TOP + (addr - HEAP_TOP) / 16
+		BL		_rfree
+		; check R0 (if _rfree(mcb_addr) == 0)
+		CMP		R0, #0
+		BEQ		_kfree_return_null
+		
+		POP		{R0}
+		B		_kfree_return_ptr
+
+
+_kfree_return_null
+		MOV		R0, #0			; return null
+		POP		{lr}
+		BX		lr
+		
+_kfree_return_ptr
+		MOV		R0, R1
+		POP		{lr}
+		BX		lr
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 	
