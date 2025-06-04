@@ -45,7 +45,6 @@ _heap_init_done
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Kernel Memory Allocation
-; TODO: _ralloc
 ; Parameters:
 ; R12: size
 ; R1: left
@@ -105,13 +104,12 @@ _ralloc_try_right
 		B		_ralloc_return_heap_addr	; right succeeded
 _ralloc_left_good
 		; split parent
-		; TODO: Fix this!!!!!!!!!!
 		;if ((array[m2a(midpoint)] & 0x01) == 0)
 		;	*(short *)&array[m2a(midpoint)] = act_half_size;
 
 		LDR			R6, =MCB_TOP
 
-		SUB			R11, R5, R6 		; MCB_TOP + midpoint - MCB_TOP(array entry location)
+		SUB			R11, R5, R6 		; MCB_TOP + midpoint - MCB_TOP(array entry location)		; oops, this isn't necessary lol
 		ADD			R11, R11, R6
 		LDRH		R9, [R11] 			; load MCB entry into R9
 		MOV			R10, R9			; copy of arrray[m2a(midpoint)]
@@ -143,8 +141,6 @@ _ralloc_base
 ;}
 		;(array[m2a(left)] & 0x01) != 0, return null
 		; calculate offset, aka m2a(left)
-		; TODO: change how array indices are calculated!
-		; TODO: try calculating array[m2a(left)] as MCB_TOP + left-0x20000000
 		LDR		R7, =MCB_TOP
 		SUB		R7, R1, R7 
 		LDR		R8, =MCB_TOP
@@ -211,15 +207,42 @@ _kalloc
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Kernel Memory De-allocation
 ; TODO: _rfree
-; 
+; Parameters: 
+; 	R0: mcb_addr
+; Local Variables:
+;	R1: mcb_contents
+;	R2: mcb_index
+;	R3: mcb_disp
+;	R4: my_size
 _rfree
 		PUSH	{lr}
-		; validate ptr
-
+		; calculating R1 (mcb_contents)
+		LDRH	R1, [R0]		; array(mcb_addr)
+		; clear used bit
+		LDR		R11, =0xFFFE		; strip allocation bit
+		AND		R1, R1, R11			
+		STRH	R1, [R0]		; array(mcb_addr)
 		
+		; calculate mcb_index (R2)
+		LDR		R11, =MCB_TOP
+		SUB		R2, R0, R11		; mcb_index = mcb_addr - MCB_TOP
+		; calculate mcb_disp (R3)
+		MOV		R11, #16
+		UDIV	R3, R1, R11		; mcb_disp = mcb_contents / 16
+		; calculate my_size (R4)
+		LSL		R4, R1, #4		; my_size = mcb_contents * 16
 		
+		;   if ((mcb_index / mcb_disp) % 2 == 0)
+		; calculate mcb_index / mcb_disp into R5
+		UDIV	R5, R2, R3
+		; perform R5 % 2, storing result into R5
+		LDR		R11, =0xFFFE		
+		AND		R5, R5, R11			; basically check if R5's last bit = 1
 		
+_rfree_left
+		POP		{pc}
 		
+_free_right
 		POP		{pc}
 
 		
