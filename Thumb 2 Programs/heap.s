@@ -238,11 +238,13 @@ _rfree
 		; perform R5 % 2, storing result into R5
 		LDR		R11, =0xFFFE		
 		AND		R5, R5, R11			; basically check if R5's last bit = 1
-		
+		CMP		R5, #0
+		BEQ		_rfree_left			; if ((mcb_index / mcb_disp) % 2 == 0), go left
+		B		_rfree_right		; else go right
 _rfree_left
 		POP		{pc}
 		
-_free_right
+_rfree_right
 		POP		{pc}
 
 		
