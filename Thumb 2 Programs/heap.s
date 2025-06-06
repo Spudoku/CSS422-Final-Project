@@ -214,6 +214,8 @@ _kalloc
 ;	R2: mcb_index
 ;	R3: mcb_disp
 ;	R4: my_size
+;	R5: mcb_buddy_index (recursive cases)
+;	R6: mcb_buddy_array = array[mcb_buddy_index]
 _rfree
 		PUSH	{lr}
 		; calculating R1 (mcb_contents)
@@ -241,13 +243,46 @@ _rfree
 		CMP		R5, #0
 		BEQ		_rfree_left			; if ((mcb_index / mcb_disp) % 2 == 0), go left
 		B		_rfree_right		; else go right
+		; calculate mcb_buddy_index 
+		; formula: mcb_buddy_index = mcb_addr + mcb_disp
 _rfree_left
-		POP		{pc}
+		; check mcb_addr + mcb_disp
+		ADD		R5, R0, R3
+		LDR		R7, =MCB_BOT
+		CMP		R5, R7			; if mcb_addr + mcb_disp >= mcb_bot, return null
+		; buddy would be outside of mcb array
+		BCS		_rfree_return_null 
+		; otherwise, continue
+		; calculate mcb_buddy into R5
+		LDRH	R6, [R5]
+		
+		
+		B		_r_free_recurse
 		
 _rfree_right
-		POP		{pc}
-
+		SUB		R5, R0, R3
+		LDR		R7, =MCB_TOP
+		CMP		R5, R7			; if mcb_addr + mcb_disp < mcb_bot, return null
+		; buddy would be outside of mcb array
+		BCC		_rfree_return_null 
+		; otherwise, continue
+		; calculate mcb_buddy into R5
+		LDRH	R6, [R5]
 		
+		B		_r_free_recurse
+
+_r_free_recurse
+		
+		;B		_rfree
+		POP		{pc}
+; return 0
+_rfree_return_null 
+		MOV		R0, #0
+		POP		{pc}
+		
+; return mcb_addr
+_rfree_return_mcb_addr 
+		POP		{pc}
 
 
 ; void free( void *ptr )
