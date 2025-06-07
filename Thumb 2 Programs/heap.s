@@ -100,7 +100,7 @@ _ralloc_try_right
 		BL		_ralloc
 		CMP		R0, #0
 		BEQ		_ralloc_return_null	; both left and right failed
-		
+		; split parent!
 		B		_ralloc_return_heap_addr	; right succeeded
 _ralloc_left_good
 		; split parent
