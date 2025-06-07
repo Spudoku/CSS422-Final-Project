@@ -247,6 +247,7 @@ _rfree
 		; formula: mcb_buddy_index = mcb_addr + mcb_disp
 _rfree_left
 		; check mcb_addr + mcb_disp
+		
 		ADD		R5, R0, R3
 		LDR		R7, =MCB_BOT
 		CMP		R5, R7			; if mcb_addr + mcb_disp >= mcb_bot, return null
@@ -269,6 +270,7 @@ _rfree_left
 		BNE		_rfree_return_mcb_addr 		; return mcb addr; buddies are not the same size
 		; otherwise continue
 		; clear self
+		; TODO: fix clearing and merging buddy
 		MOV		R9, #0
 		STRH	R9, [R5]
 		LSL		R4, #1					; my_size * 2
@@ -301,6 +303,7 @@ _rfree_right
 		BNE		_rfree_return_mcb_addr 		; return mcb addr; buddies are not the same size
 		; otherwise continue
 		; clear self
+		; TODO: fix clearing and merging buddy
 		MOV		R9, #0
 		STRH	R9, [R0]
 		LSL		R4, #1					; my_size * 2
@@ -348,16 +351,18 @@ _kfree
 		CMP		R0, #0
 		BEQ		_kfree_return_null
 		
-		POP		{R0}
+		
 		B		_kfree_return_ptr
 
 
 _kfree_return_null
+		POP		{R0}
 		MOV		R0, #0			; return null
 		POP		{lr}
 		BX		lr
 		
 _kfree_return_ptr
+		POP		{R0}
 		MOV		R0, R1
 		POP		{lr}
 		BX		lr
