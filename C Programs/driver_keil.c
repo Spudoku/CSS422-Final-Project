@@ -33,7 +33,7 @@ int main( ) {
 	void* mem7 = _malloc( 512 );
 	_free( mem6 );
 	_free( mem5 );
-	_free( mem1 );
+	_free( mem1 );									// first recursive case
 	_free( mem7 );
 	_free( mem2 );
 	void* mem8 = _malloc( 4096 );

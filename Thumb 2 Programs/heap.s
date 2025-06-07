@@ -274,8 +274,8 @@ _rfree_left
 		LSL		R4, #1					; my_size * 2
 		STRH	R4, [R0]				
 		
-		
-		B		_rfree				; recurse/promote myself or buddy!
+		POP		{lr}
+		BL		_rfree				; recurse/promote myself or buddy!
 		
 		
 _rfree_right
@@ -325,7 +325,7 @@ _rfree_return_mcb_addr
 ; void free( void *ptr )
 		EXPORT	_kfree
 _kfree
-	PUSH	{lr}
+		PUSH	{lr}
 		; validate ptr
 		; shouldn't need to convert
 		LDR		R1, =HEAP_TOP
