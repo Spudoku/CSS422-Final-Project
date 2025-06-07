@@ -238,7 +238,7 @@ _rfree
 		; calculate mcb_index / mcb_disp into R5
 		UDIV	R5, R2, R3
 		; perform R5 % 2, storing result into R5
-		LDR		R11, =0xFFFE		
+		LDR		R11, =0x0001		
 		AND		R5, R5, R11			; basically check if R5's last bit = 1
 		CMP		R5, #0
 		BEQ		_rfree_left			; if ((mcb_index / mcb_disp) % 2 == 0), go left
@@ -272,9 +272,9 @@ _rfree_left
 		; clear self
 		; TODO: fix clearing and merging buddy
 		MOV		R9, #0
-		STRH	R9, [R5]
+		STRH	R9, [R5]				; *(short *)&array[m2a(mcb_addr + mcb_disp)] = 0; // clear my buddy
 		LSL		R4, #1					; my_size * 2
-		STRH	R4, [R0]				
+		STRH	R4, [R0]				; *(short *)&array[m2a(mcb_addr)] = my_size; // merge my budyy
 		
 		POP		{lr}
 		BL		_rfree				; recurse/promote myself or buddy!
@@ -305,9 +305,9 @@ _rfree_right
 		; clear self
 		; TODO: fix clearing and merging buddy
 		MOV		R9, #0
-		STRH	R9, [R0]
+		STRH	R9, [R0]				; *(short *)&array[m2a(mcb_addr)] = 0; // clear myself
 		LSL		R4, #1					; my_size * 2
-		STRH	R4, [R5]
+		STRH	R4, [R5]				; *(short *)&array[m2a(mcb_addr - mcb_disp)] = my_size; // merge me to my buddy
 		
 		MOV		R0, R5
 		B		_rfree				; recurse/promote myself or buddy!
