@@ -253,11 +253,30 @@ _rfree_left
 		; buddy would be outside of mcb array
 		BCS		_rfree_return_null 
 		; otherwise, continue
-		; calculate mcb_buddy into R5
+		; calculate mcb_buddy into R6
 		LDRH	R6, [R5]
+		; now compare mcb_buddy (R6)
+		; store copy of R6 into R8
+		MOV		R8, R6
+		AND		R8, R8, #0x01			; check last bit
+		CMP		R8, #1					; if R8 (after an AND) == 1, return mcb_addr
+		BEQ		_rfree_return_mcb_addr 
+		; clear last bits 4-0 of mcb_buddy
+		; mask should be FFE0, for 1111 1111 1110 0000
+		LDR		R9, =0xFFE0
+		AND		R8, R8, R9		; clear bits 4-0
+		CMP		R8, R4
+		BNE		_rfree_return_mcb_addr 		; return mcb addr; buddies are not the same size
+		; otherwise continue
+		; clear self
+		MOV		R9, #0
+		STRH	R9, [R5]
+		LSL		R4, #1					; my_size * 2
+		STRH	R4, [R0]				
 		
 		
-		B		_r_free_recurse
+		B		_rfree				; recurse/promote myself or buddy!
+		
 		
 _rfree_right
 		SUB		R5, R0, R3
@@ -266,15 +285,33 @@ _rfree_right
 		; buddy would be outside of mcb array
 		BCC		_rfree_return_null 
 		; otherwise, continue
-		; calculate mcb_buddy into R5
+		; calculate mcb_buddy into R6
 		LDRH	R6, [R5]
+		; now compare mcb_buddy (R6)
+		; store copy of R6 into R8
+		MOV		R8, R6
+		AND		R8, R8, #0x01			; check last bit
+		CMP		R8, #1					; if R8 (after an AND) == 1, return mcb_addr
+		BEQ		_rfree_return_mcb_addr 
+		; clear last bits 4-0 of mcb_buddy
+		; mask should be FFE0, for 1111 1111 1110 0000
+		LDR		R9, =0xFFE0
+		AND		R8, R8, R9		; clear bits 4-0
+		CMP		R8, R4
+		BNE		_rfree_return_mcb_addr 		; return mcb addr; buddies are not the same size
+		; otherwise continue
+		; clear self
+		MOV		R9, #0
+		STRH	R9, [R0]
+		LSL		R4, #1					; my_size * 2
+		STRH	R4, [R5]
 		
-		B		_r_free_recurse
+		MOV		R0, R5
+		B		_rfree				; recurse/promote myself or buddy!
 
-_r_free_recurse
+;_r_free_recurse
 		
-		;B		_rfree
-		POP		{pc}
+		
 ; return 0
 _rfree_return_null 
 		MOV		R0, #0
