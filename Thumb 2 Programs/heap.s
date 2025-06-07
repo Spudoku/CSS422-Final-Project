@@ -96,33 +96,42 @@ _ralloc_recurse
 		B       _ralloc_left_good
 		
 _ralloc_try_right
+		; goal: get left buddy I guess
+		PUSH	{R1}
 		MOV		R1, R5				; use saved midpoint
 		BL		_ralloc
+		POP		{R1}
+		
 		CMP		R0, #0
 		BEQ		_ralloc_return_null	; both left and right failed
 		; split parent!
+		;if ((array[m2a(left)] & 0x01) == 0)
+		;	*(short *)&array[m2a(midpoint)] = act_half_size;
+		LDRH		R9, [R1] 			; load MCB entry into R9
+		MOV			R10, R9			; copy of arrray[m2a(midpoint)]
+
+		AND			R10, R10, #0x01		; ; check allocation bit
+		CMP			R10, #0
+		BNE			_ralloc_return_heap_addr	
+		; if allocation bit == 0
+		; store ; 	R7: act_half_size
+		STRH		R7, [R1]
+		
 		B		_ralloc_return_heap_addr	; right succeeded
 _ralloc_left_good
 		; split parent
 		;if ((array[m2a(midpoint)] & 0x01) == 0)
 		;	*(short *)&array[m2a(midpoint)] = act_half_size;
 
-		LDR			R6, =MCB_TOP
-
-		SUB			R11, R5, R6 		; MCB_TOP + midpoint - MCB_TOP(array entry location)		; oops, this isn't necessary lol
-		ADD			R11, R11, R6
-		LDRH		R9, [R11] 			; load MCB entry into R9
+		LDRH		R9, [R5] 			; load MCB entry into R9
 		MOV			R10, R9			; copy of arrray[m2a(midpoint)]
 
 		AND			R10, R10, #0x01		; ; check allocation bit
 		CMP			R10, #0
 		BNE			_ralloc_return_heap_addr	
-		
-		
-		
 		; if allocation bit == 0
 		; store ; 	R7: act_half_size
-		STRH		R7, [R11]
+		STRH		R7, [R5]
 		
 		B			_ralloc_return_heap_addr	
 _ralloc_base

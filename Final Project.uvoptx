@@ -142,25 +142,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>34</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>.\C Programs\driver_keil.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
           <LineNumber>31</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>2076</Address>
+          <Address>2088</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -172,11 +156,11 @@
           <Expression>\\Final_Project\C Programs/driver_keil.c\31</Expression>
         </Bp>
         <Bp>
-          <Number>2</Number>
+          <Number>1</Number>
           <Type>0</Type>
           <LineNumber>27</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>2032</Address>
+          <Address>2044</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -186,6 +170,22 @@
           <Filename>.\C Programs\driver_keil.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\Final_Project\C Programs/driver_keil.c\27</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>44</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>2174</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>.\C Programs\driver_keil.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\Final_Project\C Programs/driver_keil.c\44</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
