@@ -234,7 +234,8 @@ _rfree
 		MOV		R11, #16
 		UDIV	R3, R1, R11		; mcb_disp = mcb_contents / 16
 		; calculate my_size (R4)
-		LSL		R4, R1, #4		; my_size = mcb_contents * 16
+		;LSL		R4, R1, #4		; my_size = mcb_contents * 16
+		MOV		R4, R1
 		
 		;   if ((mcb_index / mcb_disp) % 2 == 0)
 		; calculate mcb_index / mcb_disp into R5
@@ -255,6 +256,7 @@ _rfree_left
 		CMP		R5, R7			; if mcb_addr + mcb_disp >= mcb_bot, return null
 		; buddy would be outside of mcb array
 		BCS		_rfree_return_null 
+		
 		; otherwise, continue
 		; calculate mcb_buddy into R6
 		LDRH	R6, [R5]
@@ -266,9 +268,10 @@ _rfree_left
 		BEQ		_rfree_return_mcb_addr 
 		; clear last bits 4-0 of mcb_buddy
 		; mask should be FFE0, for 1111 1111 1110 0000
+		MOV		R10, R6
 		LDR		R9, =0xFFE0
-		AND		R8, R10, R9		; clear bits 4-0
-		CMP		R8, R4
+		AND		R10, R10, R9
+		CMP		R10, R4
 		BNE		_rfree_return_mcb_addr 		; return mcb addr; buddies are not the same size
 		; otherwise continue
 		; clear self
@@ -299,6 +302,7 @@ _rfree_right
 		BEQ		_rfree_return_mcb_addr 
 		; clear last bits 4-0 of mcb_buddy
 		; mask should be FFE0, for 1111 1111 1110 0000
+		MOV		R8, R6
 		LDR		R9, =0xFFE0
 		AND		R8, R8, R9		; clear bits 4-0
 		CMP		R8, R4
