@@ -106,12 +106,11 @@ _ralloc_try_right
 		BEQ		_ralloc_return_null	; both left and right failed
 		; split parent!
 		;if ((array[m2a(left)] & 0x01) == 0)
-		;	*(short *)&array[m2a(midpoint)] = act_half_size;
+		;	*(short *)&array[m2a(left)] = act_half_size;
 		LDRH		R9, [R1] 			; load MCB entry into R9
-		MOV			R10, R9			; copy of arrray[m2a(midpoint)]
 
-		AND			R10, R10, #0x01		; ; check allocation bit
-		CMP			R10, #0
+		AND			R9, R9, #0x01		; ; check allocation bit
+		CMP			R9, #0
 		BNE			_ralloc_return_heap_addr	
 		; if allocation bit == 0
 		; store ; 	R7: act_half_size
@@ -169,7 +168,7 @@ _ralloc_base
 		BCC		_ralloc_return_null
 		
 		; otherwise, allocate block (the halfword loaded in R9)
-		ORR		R9, R9, #0x01			; set last bit to 1
+		ORR		R9, R6, #0x01			; set last bit to 1
 		STRH	R9, [R8]
 		
 		; compute heap address and return
