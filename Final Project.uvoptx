@@ -142,9 +142,25 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>152</LineNumber>
+          <LineNumber>293</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>864</Address>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>.\Thumb 2 Programs\heap.s</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>253</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>1002</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -153,14 +169,14 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>.\Thumb 2 Programs\heap.s</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\Final_Project\Thumb 2 Programs/heap.s\152</Expression>
+          <Expression>\\Final_Project\Thumb 2 Programs/heap.s\253</Expression>
         </Bp>
         <Bp>
-          <Number>1</Number>
+          <Number>2</Number>
           <Type>0</Type>
           <LineNumber>34</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>2100</Address>
+          <Address>2104</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -188,7 +204,7 @@
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>0x20006800</ItemText>
+          <ItemText>0x20006880</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>

@@ -260,14 +260,14 @@ _rfree_left
 		LDRH	R6, [R5]
 		; now compare mcb_buddy (R6)
 		; store copy of R6 into R8
-		MOV		R8, R6
-		AND		R8, R8, #0x01			; check last bit
-		CMP		R8, #1					; if R8 (after an AND) == 1, return mcb_addr
+		MOV		R10, R6
+		AND		R10, R10, #0x01			; check last bit
+		CMP		R10, #1					; if R8 (after an AND) == 1, return mcb_addr
 		BEQ		_rfree_return_mcb_addr 
 		; clear last bits 4-0 of mcb_buddy
 		; mask should be FFE0, for 1111 1111 1110 0000
 		LDR		R9, =0xFFE0
-		AND		R8, R8, R9		; clear bits 4-0
+		AND		R8, R10, R9		; clear bits 4-0
 		CMP		R8, R4
 		BNE		_rfree_return_mcb_addr 		; return mcb addr; buddies are not the same size
 		; otherwise continue
