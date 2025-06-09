@@ -20,7 +20,7 @@ void sig_handler2( int signum ) {
 
 int main( ) {
 	char stringA[40] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabc\0";
-	char stringB[40];
+	char stringB[40] = "543252345234523453542434132153246\0";
 	_bzero( stringB, 40 );
 	_strncpy( stringB, stringA, 40 );
 	_bzero( stringA, 40 );
