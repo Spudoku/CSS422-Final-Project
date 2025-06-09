@@ -208,6 +208,7 @@ Reset_Handler   PROC
 				IMPORT  __main
 				IMPORT	_syscall_table_init
 				IMPORT	_heap_init
+				IMPORT	_timer_init
 	
 				; Store __initial_sp into MSP (Step 1 toward Midpoint Report)
 				LDR R0, =__initial_sp ; thread mode uses MSP
@@ -224,7 +225,8 @@ Reset_Handler   PROC
 				LDR		R0, =_heap_init
 				BLX		R0
 				; Initialize the SysTick timer (Step 2)
-	
+				LDR		R0, =_timer_init
+				BLX		R0
 				; Store __initial_user_sp into PSP (Step 1 toward Midpoint Report)
 				LDR R0, =__initial_user_sp
 				MSR PSP, R0
@@ -234,7 +236,7 @@ Reset_Handler   PROC
 
                 LDR     R0, =__main
                 BX      R0
-                ENDP
+                ENDP	
 
 ; Dummy Exception Handlers (infinite loops which can be modified)
 
