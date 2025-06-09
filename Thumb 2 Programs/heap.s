@@ -219,18 +219,13 @@ _kalloc
 ;	R5: mcb_buddy_index (recursive cases)
 ;	R6: mcb_buddy_array = array[mcb_buddy_index]
 _rfree
-	
+		PUSH	{lr}
 		; calculating R1 (mcb_contents)
 		LDRH	R1, [R0]		; array(mcb_addr)
 		; clear used bit
 		LDR		R11, =0xFFFE		; strip allocation bit
 		AND		R1, R1, R11			
 		STRH	R1, [R0]		; array(mcb_addr)
-		
-		;  base case: R1 is max_size or greater
-		LDR 	R12, =MAX_SIZE
-		CMP		R1, R12
-		BCS		_rfree_return_mcb_addr 
 		
 		; calculate mcb_index (R2)
 		LDR		R11, =MCB_TOP
@@ -286,7 +281,7 @@ _rfree_left
 		LSL		R4, #1					; my_size * 2
 		STRH	R4, [R0]				; *(short *)&array[m2a(mcb_addr)] = my_size; // merge my budyy
 		
-		POP		{lr}
+		;POP		{lr}
 		BL		_rfree				; recurse/promote myself or buddy!
 		
 		
@@ -321,8 +316,7 @@ _rfree_right
 		STRH	R4, [R5]				; *(short *)&array[m2a(mcb_addr - mcb_disp)] = my_size; // merge me to my buddy
 		
 		MOV		R0, R5
-		POP		{lr}
-		B		_rfree				; recurse/promote myself or buddy!
+		BL		_rfree				; recurse/promote myself or buddy!
 
 ;_r_free_recurse
 		
