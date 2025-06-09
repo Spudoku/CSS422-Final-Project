@@ -291,6 +291,8 @@ SysTick_Handler\
 				EXPORT  SysTick_Handler           [WEAK]
 				STMFD sp!, {r1-r12,lr}	; stores registers and link register onto stack
 				; TODO: Invoke _timer_update
+				IMPORT	_timer_update
+				BL		_timer_update
 				LDMFD sp!, {r1-r12,lr}	; load registers and link register from stack
 				; TODO: Change from MSP to PSP 
                 BX		lr			; should go back to link register?
