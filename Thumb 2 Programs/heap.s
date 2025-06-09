@@ -255,7 +255,7 @@ _rfree_left
 		LDR		R7, =MCB_BOT
 		CMP		R5, R7			; if mcb_addr + mcb_disp >= mcb_bot, return null
 		; buddy would be outside of mcb array
-		BCS		_rfree_return_null 
+		BCS		_rfree_exit_pop_lr 
 		
 		; otherwise, continue
 		; calculate mcb_buddy into R6
@@ -265,14 +265,14 @@ _rfree_left
 		MOV		R10, R6
 		AND		R10, R10, #0x01			; check last bit
 		CMP		R10, #1					; if R8 (after an AND) == 1, return mcb_addr
-		BEQ		_rfree_return_mcb_addr 
+		BEQ		_rfree_exit_pop_lr 
 		; clear last bits 4-0 of mcb_buddy
 		; mask should be FFE0, for 1111 1111 1110 0000
 		MOV		R10, R6
 		LDR		R9, =0xFFE0
 		AND		R10, R10, R9
 		CMP		R10, R4
-		BNE		_rfree_return_mcb_addr 		; return mcb addr; buddies are not the same size
+		BNE		_rfree_exit_pop_lr 		; return mcb addr; buddies are not the same size
 		; otherwise continue
 		; clear self
 		; TODO: fix clearing and merging buddy
@@ -282,7 +282,7 @@ _rfree_left
 		STRH	R4, [R0]				; *(short *)&array[m2a(mcb_addr)] = my_size; // merge my budyy
 		
 		;POP		{lr}
-		BL		_rfree				; recurse/promote myself or buddy!
+		B		_rfree				; recurse/promote myself or buddy!
 		
 		
 _rfree_right
@@ -290,7 +290,7 @@ _rfree_right
 		LDR		R7, =MCB_TOP
 		CMP		R5, R7			; if mcb_addr + mcb_disp < mcb_bot, return null
 		; buddy would be outside of mcb array
-		BCC		_rfree_return_null 
+		BCC		_rfree_exit_pop_lr 
 		; otherwise, continue
 		; calculate mcb_buddy into R6
 		LDRH	R6, [R5]
@@ -299,14 +299,14 @@ _rfree_right
 		MOV		R8, R6
 		AND		R8, R8, #0x01			; check last bit
 		CMP		R8, #1					; if R8 (after an AND) == 1, return mcb_addr
-		BEQ		_rfree_return_mcb_addr 
+		BEQ		_rfree_exit_pop_lr
 		; clear last bits 4-0 of mcb_buddy
 		; mask should be FFE0, for 1111 1111 1110 0000
 		MOV		R8, R6
 		LDR		R9, =0xFFE0
 		AND		R8, R8, R9		; clear bits 4-0
 		CMP		R8, R4
-		BNE		_rfree_return_mcb_addr 		; return mcb addr; buddies are not the same size
+		BNE		_rfree_exit_pop_lr		; return mcb addr; buddies are not the same size
 		; otherwise continue
 		; clear self
 		; TODO: fix clearing and merging buddy
@@ -316,18 +316,13 @@ _rfree_right
 		STRH	R4, [R5]				; *(short *)&array[m2a(mcb_addr - mcb_disp)] = my_size; // merge me to my buddy
 		
 		MOV		R0, R5
-		BL		_rfree				; recurse/promote myself or buddy!
+		B		_rfree				; recurse/promote myself or buddy!
 
 ;_r_free_recurse
-		
-		
-; return 0
-_rfree_return_null 
-		MOV		R0, #0
-		POP		{pc}
-		
-; return mcb_addr
-_rfree_return_mcb_addr 
+
+
+; common exit point for _rfree
+_rfree_exit_pop_lr
 		POP		{pc}
 
 
@@ -369,7 +364,7 @@ _kfree_return_null
 		
 _kfree_return_ptr
 		POP		{R0}
-		MOV		R0, R1
+		;MOV		R0, R1
 		POP		{lr}
 		BX		lr
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
