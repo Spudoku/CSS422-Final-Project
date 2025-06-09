@@ -83,7 +83,16 @@ _timer_update_done
 	    EXPORT	_signal_handler
 _signal_handler
 	;; Implement by yourself
-	
+		LDR		R4, =USR_HANDLER
+		LDR		R2, [R4]			; load value of 0x20007B84 at R2
+		
+		CMP		R0, #SIGALRM	; if R0 == 14...
+		BNE		_signal_handler_done
+		; ... save it at 0x20007B84
+		STR		R0, [R4]
+		
+_signal_handler_done
+		MOV		R0, R2		; return previous value of 0x20007B84 to main
 		MOV		pc, lr		; return to Reset_Handler
 		
 		END		

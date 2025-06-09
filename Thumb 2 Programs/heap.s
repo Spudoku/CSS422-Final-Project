@@ -201,6 +201,8 @@ _kalloc
 		PUSH	{lr}
 		LDR		R1, =MCB_TOP
 		LDR		R2, =MCB_BOT
+		; TODO: check R0 against MIN_SIZE	EQU		0x00000020		; 32B  = 2^5
+		; if R0 < min_size, set it to min_size
 		MOV		R12, R0
 		BL		_ralloc
 		POP		{lr}
