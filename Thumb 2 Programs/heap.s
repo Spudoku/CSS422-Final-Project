@@ -219,7 +219,7 @@ _kalloc
 ;	R5: mcb_buddy_index (recursive cases)
 ;	R6: mcb_buddy_array = array[mcb_buddy_index]
 _rfree
-	
+		PUSH	{lr}
 		; calculating R1 (mcb_contents)
 		LDRH	R1, [R0]		; array(mcb_addr)
 		; clear used bit
@@ -230,7 +230,7 @@ _rfree
 		;  base case: R1 is max_size or greater
 		LDR 	R12, =MAX_SIZE
 		CMP		R1, R12
-		BCS		_rfree_return_mcb_addr 
+		BCS		_rfree_done
 		
 		; calculate mcb_index (R2)
 		LDR		R11, =MCB_TOP
@@ -255,6 +255,10 @@ _rfree
 		; formula: mcb_buddy_index = mcb_addr + mcb_disp
 _rfree_left
 		; check mcb_addr + mcb_disp
+		;  base case: R1 is max_size or greater
+		LDR 	R12, =MAX_SIZE
+		CMP		R1, R12
+		BCS		_rfree_done
 		
 		ADD		R5, R0, R3
 		LDR		R7, =MCB_BOT
@@ -286,11 +290,16 @@ _rfree_left
 		LSL		R4, #1					; my_size * 2
 		STRH	R4, [R0]				; *(short *)&array[m2a(mcb_addr)] = my_size; // merge my budyy
 		
-		POP		{lr}
+		;POP		{lr}
 		BL		_rfree				; recurse/promote myself or buddy!
 		
 		
 _rfree_right
+		;  base case: R1 is max_size or greater
+		LDR 	R12, =MAX_SIZE
+		CMP		R1, R12
+		BCS		_rfree_done
+		
 		SUB		R5, R0, R3
 		LDR		R7, =MCB_TOP
 		CMP		R5, R7			; if mcb_addr + mcb_disp < mcb_bot, return null
@@ -321,20 +330,24 @@ _rfree_right
 		STRH	R4, [R5]				; *(short *)&array[m2a(mcb_addr - mcb_disp)] = my_size; // merge me to my buddy
 		
 		MOV		R0, R5
-		POP		{lr}
+		;POP		{lr}
 		B		_rfree				; recurse/promote myself or buddy!
 
-;_r_free_recurse
+_rfree_done
+		POP		{pc}
 		
 		
 ; return 0
 _rfree_return_null 
 		MOV		R0, #0
+		;B		_kfree_done
 		POP		{pc}
 		
 ; return mcb_addr
 _rfree_return_mcb_addr 
 		POP		{pc}
+		
+
 
 
 ; void free( void *ptr )
@@ -359,6 +372,7 @@ _kfree
 		UDIV	R0, R0, R4		; (addr - HEAP_TOP) / 16
 		ADD		R0, R0, R3		; MCB_TOP + (addr - HEAP_TOP) / 16
 		BL		_rfree
+_kfree_done
 		; check R0 (if _rfree(mcb_addr) == 0)
 		CMP		R0, #0
 		BEQ		_kfree_return_null
